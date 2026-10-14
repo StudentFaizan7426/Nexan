@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5C7057">
+<title>Rapid Response Portal — Family &amp; Ambulance</title>
+<style>
+:root{
+  --primary:#5C7057;--primary-dark:#3F4E3B;--secondary:#89A482;--border:#ACC5A6;--card:#D1EDD3;
+  --danger:#B3261E;--danger-dark:#8C1D17;--text:#1F2A1D;--muted:#5A6B56;
+  --bg:#F7FAF7;--surface:#FFFFFF;--radius:14px;--radius-sm:10px;
+  --shadow:0 2px 10px rgba(31,42,29,.08);--shadow-lg:0 10px 30px rgba(31,42,29,.14);
+  --grad-1:linear-gradient(135deg,#5C7057 0%,#3F4E3B 100%);
+  --grad-2:linear-gradient(135deg,#89A482 0%,#5C7057 100%);
+  --grad-card:linear-gradient(180deg,#FFFFFF 0%,#F7FAF7 100%);
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",Arial,sans-serif;font-size:16px;line-height:1.55;color:var(--text);background:var(--bg);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body.is-loading{overflow:hidden}
+img,svg{max-width:100%}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ===== LOADING ===== */
+.loader-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background-color:#1F2A1D;background-image:url("background2.jpg");background-size:cover;background-position:center;background-repeat:no-repeat;z-index:9999;padding:24px;padding-top:calc(24px + env(safe-area-inset-top));padding-bottom:calc(24px + env(safe-area-inset-bottom));overflow:hidden;transition:opacity .6s ease, transform .6s ease;}
+.loader-screen::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(31,42,29,.15) 0%,rgba(31,42,29,.28) 45%,rgba(31,42,29,.55) 100%);z-index:0;pointer-events:none;}
+.loader-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:400px;}
+.logo-wrap{position:relative;width:170px;height:170px;display:grid;place-items:center;margin-bottom:24px;animation:logoIn 1s cubic-bezier(.2,.9,.3,1.3) both;}
+@keyframes logoIn{0%{opacity:0;transform:scale(.85) translateY(8px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.logo-glass{position:absolute;inset:0;border-radius:28px;background:rgba(255,255,255,.14);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid rgba(255,255,255,.28);box-shadow:0 8px 32px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(255,255,255,.08);overflow:hidden;}
+.logo-glass::after{content:"";position:absolute;top:-50%;left:-20%;width:140%;height:120%;background:linear-gradient(120deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.22) 50%,rgba(255,255,255,0) 70%);transform:rotate(-12deg);animation:sheen 4.5s ease-in-out infinite;pointer-events:none;}
+@keyframes sheen{0%,100%{transform:translateX(-30%) rotate(-12deg);opacity:.6}50%{transform:translateX(30%) rotate(-12deg);opacity:1}}
+.logo-img{position:relative;z-index:2;width:78%;height:78%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none;filter:drop-shadow(0 4px 14px rgba(0,0,0,.35));animation:logoBreath 3.6s ease-in-out 1.2s infinite;}
+@keyframes logoBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+.logo-fallback{position:relative;z-index:2;display:none;color:#D1EDD3;filter:drop-shadow(0 4px 14px rgba(0,0,0,.35));}
+.title-block{display:inline-flex;flex-direction:column;align-items:center;gap:6px;padding:14px 26px 16px;border-radius:20px;background:rgba(255,255,255,.10);backdrop-filter:blur(10px) saturate(130%);-webkit-backdrop-filter:blur(10px) saturate(130%);border:1px solid rgba(255,255,255,.20);box-shadow:0 6px 24px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.28);margin-bottom:22px;animation:fadeUp .9s .2s cubic-bezier(.2,.8,.3,1) both;max-width:90vw;}
+.brand-title{font-size:clamp(20px,5.8vw,26px);font-weight:800;letter-spacing:.2px;color:#fff;margin:0;line-height:1.2;text-shadow:0 2px 12px rgba(0,0,0,.4);}
+.brand-subtitle{font-size:clamp(10.5px,3vw,12px);font-weight:600;color:rgba(209,237,211,.92);letter-spacing:.18em;text-transform:uppercase;margin:0;text-shadow:0 1px 8px rgba(0,0,0,.5);}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:translateY(0)}}
+.loading-text{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:999px;background:rgba(255,255,255,.10);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:600;color:#EAF4EB;letter-spacing:.03em;min-height:32px;box-shadow:0 4px 16px rgba(0,0,0,.15);animation:fadeUp .8s .55s cubic-bezier(.2,.8,.3,1) both;text-shadow:0 1px 4px rgba(0,0,0,.35);}
+.dots{display:inline-flex;gap:3px;margin-inline-start:2px;}
+.dots span{width:4px;height:4px;border-radius:50%;background:#D1EDD3;display:inline-block;animation:dotBounce 1.2s infinite ease-in-out;}
+.dots span:nth-child(2){animation-delay:.15s}
+.dots span:nth-child(3){animation-delay:.3s}
+@keyframes dotBounce{0%,80%,100%{transform:translateY(0);opacity:.55}40%{transform:translateY(-4px);opacity:1}}
+.loader-footer{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(232,244,235,.85);font-weight:600;z-index:2;text-shadow:0 1px 6px rgba(0,0,0,.55);animation:fadeUp .9s .75s cubic-bezier(.2,.8,.3,1) both;padding:0 16px;}
+.loader-screen.done{opacity:0;transform:scale(1.04);pointer-events:none;}
+@media (max-height:600px){.logo-wrap{width:140px;height:140px;margin-bottom:18px}.title-block{padding:11px 20px 13px;margin-bottom:16px}}
+@media (max-height:480px){.logo-wrap{width:110px;height:110px;margin-bottom:14px}.brand-title{font-size:18px}.brand-subtitle{font-size:10px}.title-block{margin-bottom:12px}}
+
+/* ===== APP SHELL ===== */
+.app-shell{display:flex;min-height:100vh;width:100%;}
+.sidebar{width:250px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sidebar-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid var(--border);margin-bottom:14px;}
+.sidebar-brand .logo{width:38px;height:38px;flex:0 0 38px;border-radius:11px;background:var(--card);display:grid;place-items:center;color:var(--primary);}
+.sidebar-brand .logo svg{width:22px;height:22px}
+.sidebar-brand .brand-name{font-size:15px;font-weight:700;color:var(--primary);line-height:1.2;}
+.sidebar-nav{display:flex;flex-direction:column;gap:6px;flex:1 1 auto;}
+.nav-link{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-sm);color:var(--text);font-size:15px;font-weight:600;text-decoration:none;transition:background .13s,color .13s;min-height:48px;}
+.nav-link svg{width:22px;height:22px;flex:0 0 22px;color:var(--secondary)}
+.nav-link:hover{background:var(--card);color:var(--primary);text-decoration:none}
+.nav-link:hover svg{color:var(--primary)}
+.nav-link.active{background:var(--grad-1);color:#fff}
+.nav-link.active svg{color:#fff}
+.nav-link:focus-visible{outline:3px solid var(--secondary);outline-offset:-3px}
+.sidebar-foot{padding-top:16px;margin-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.5;}
+.sidebar-foot p{margin:3px 0}
+.top-header{display:none;align-items:center;gap:10px;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));background:var(--grad-1);color:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.top-header .logo{width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:rgba(255,255,255,.15);display:grid;place-items:center;color:#fff;}
+.top-header .logo svg{width:20px;height:20px}
+.top-header .brand-name{font-size:15px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.app-main{flex:1 1 auto;min-width:0;padding:24px 20px;display:flex;flex-direction:column;align-items:center;}
+.app-main > *{width:100%;max-width:720px;}
+.app-footer{margin-top:auto;padding:18px 0 4px;font-size:12.5px;color:var(--muted);text-align:center;border-top:1px solid var(--border);}
+.app-footer p{margin:3px 0}
+@media (max-width:767px){
+  .app-shell{flex-direction:column;padding-bottom:76px;}
+  .top-header{display:flex}
+  .sidebar{width:100%;height:auto;position:fixed;bottom:0;top:auto;left:0;right:0;z-index:100;flex-direction:row;padding:8px 6px;padding-bottom:calc(8px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--border);overflow:visible;box-shadow:0 -4px 12px rgba(31,42,29,.05);}
+  .sidebar-brand{display:none}
+  .sidebar-foot{display:none}
+  .sidebar-nav{flex-direction:row;width:100%;gap:4px;}
+  .nav-link{flex:1;flex-direction:column;gap:3px;padding:8px 4px;font-size:11.5px;text-align:center;min-height:56px;justify-content:center;border-radius:10px;}
+  .nav-link svg{width:22px;height:22px}
+  .app-main{padding:16px 14px 20px}
+}
+
+/* ===== VIEWS / TYPO ===== */
+.view{animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h1{font-size:22px;line-height:1.3;color:var(--primary);margin:0 0 6px}
+h2{font-size:18px;line-height:1.35;color:var(--primary);margin:0 0 8px}
+h3{font-size:16px;margin:0 0 6px;color:var(--text)}
+p{margin:0 0 10px}
+.muted{color:var(--muted);font-size:14px}
+.small{font-size:13px}
+.center{text-align:center}
+
+/* ===== BUTTONS ===== */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:50px;padding:12px 16px;font:inherit;font-size:16px;font-weight:600;border-radius:var(--radius);border:2px solid transparent;cursor:pointer;text-align:center;text-decoration:none;transition:background .15s,border-color .15s,transform .08s,box-shadow .15s;-webkit-tap-highlight-color:transparent;}
+.btn:hover{text-decoration:none}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible{outline:3px solid var(--secondary);outline-offset:2px}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed;transform:none}
+.btn-primary{background:var(--grad-1);color:#fff;box-shadow:0 4px 14px rgba(63,78,59,.28)}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(63,78,59,.4)}
+.btn-secondary{background:var(--secondary);color:#1F2A1D}
+.btn-secondary:hover{background:#7B9774}
+.btn-outline{background:var(--surface);color:var(--primary);border-color:var(--border)}
+.btn-outline:hover{background:var(--card);border-color:var(--secondary)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:var(--danger-dark)}
+.btn-ghost{background:transparent;color:var(--primary);border-color:transparent;min-height:44px}
+.btn-ghost:hover{background:var(--card)}
+.btn-sm{min-height:44px;font-size:14px;padding:9px 14px;border-radius:var(--radius-sm)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-row>.btn{flex:1 1 150px;width:auto}
+.btn .ico{width:22px;height:22px;flex:0 0 22px}
+
+/* ===== CARDS ===== */
+.card{background:var(--grad-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-tinted{background:var(--card);border-color:var(--secondary)}
+
+/* ===== STEPS ===== */
+.steps{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:14px;letter-spacing:.02em;}
+.steps .step{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.steps .num{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:2px solid var(--border);color:var(--muted);font-size:11.5px;}
+.steps .step.active{color:var(--primary)}
+.steps .step.active .num{background:var(--primary);border-color:var(--primary);color:#fff}
+.steps .arrow{color:var(--border);font-weight:700}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--primary);min-height:40px;margin-bottom:4px;}
+.back-link svg{width:16px;height:16px}
+
+/* ===== FORM FIELDSET (modern card style) ===== */
+fieldset{border:0;margin:0 0 20px;padding:0;min-width:0;}
+.field-card{background:var(--grad-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:var(--shadow);}
+.field-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.field-head .fh-icon{width:36px;height:36px;flex:0 0 36px;border-radius:10px;background:var(--card);display:grid;place-items:center;font-size:18px;}
+.field-head .fh-text{flex:1;}
+.field-head .fh-title{font-size:16.5px;font-weight:800;color:var(--primary);line-height:1.25;margin:0;}
+.field-head .fh-hint{font-size:12.5px;color:var(--muted);margin:3px 0 0;font-weight:500;}
+.field-hint{font-size:13px;color:var(--muted);margin:0 0 10px;}
+
+/* ===== OPTIONS (modern chips, not quiz-like) ===== */
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt-grid.one{grid-template-columns:1fr}
+.opt-grid.three{grid-template-columns:1fr}
+.opt{position:relative;display:block;cursor:pointer}
+.opt input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
+.opt-body{display:flex;align-items:center;gap:10px;min-height:58px;padding:12px 13px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);font-size:14.5px;font-weight:600;color:var(--text);transition:background .15s,border-color .15s,box-shadow .15s,transform .1s;height:100%;}
+.opt-body .opt-emoji{font-size:22px;line-height:1;flex:0 0 auto;filter:grayscale(.15)}
+.opt-body .opt-txt{flex:1;line-height:1.3}
+.opt input:checked + .opt-body{background:var(--card);border-color:var(--primary);box-shadow:0 0 0 3px rgba(92,112,87,.13),0 2px 8px rgba(92,112,87,.14);transform:translateY(-1px);}
+.opt input:checked + .opt-body .opt-emoji{filter:none}
+.opt input:focus-visible + .opt-body{outline:3px solid var(--secondary);outline-offset:2px}
+.opt:active .opt-body{transform:scale(.99)}
+
+/* ===== ETA chips ===== */
+.eta-row{display:flex;flex-wrap:wrap;gap:8px}
+.eta-btn{flex:1 1 calc(33.333% - 8px);min-width:88px;min-height:52px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:background .13s,border-color .13s,transform .1s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.eta-btn:hover{background:var(--card)}
+.eta-btn[aria-pressed="true"]{background:var(--grad-1);border-color:var(--primary-dark);color:#fff;box-shadow:0 4px 14px rgba(63,78,59,.3);}
+.eta-btn:focus-visible{outline:3px solid var(--secondary);outline-offset:2px}
+
+/* ===== FIELDS ===== */
+.field{margin-bottom:16px}
+.field label.lbl{display:block;font-size:15px;font-weight:700;color:var(--primary);margin-bottom:6px;}
+.field .sub{font-size:13px;color:var(--muted);margin:0 0 8px}
+input[type="text"],input[type="tel"],input[type="number"],select,textarea{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);padding:12px 13px;min-height:50px;transition:border-color .13s,box-shadow .13s;}
+textarea{min-height:84px;resize:vertical;line-height:1.5}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--secondary);box-shadow:0 0 0 3px rgba(137,164,130,.28);}
+input::placeholder,textarea::placeholder{color:#93A48F}
+input.ltr{direction:ltr;text-align:left}
+input[type="number"]{-moz-appearance:textfield}
+input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input.invalid,select.invalid,textarea.invalid{border-color:var(--danger)}
+.err{display:none;color:var(--danger);font-size:13.5px;font-weight:600;margin-top:6px;line-height:1.4;}
+.err.show{display:block}
+.unit-wrap{position:relative}
+.unit-wrap .unit{position:absolute;top:50%;inset-inline-end:14px;transform:translateY(-50%);font-size:13px;font-weight:700;color:var(--muted);pointer-events:none;}
+.check-row{display:flex;align-items:center;gap:10px;min-height:48px;cursor:pointer}
+.check-row input{width:22px;height:22px;flex:0 0 22px;accent-color:var(--primary);cursor:pointer;}
+.check-row span{font-size:15px;font-weight:600}
+.char-counter{text-align:end;font-size:12.5px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums;}
+.char-counter.warn{color:var(--danger);font-weight:700}
+
+/* ===== COLLAPSIBLE ===== */
+.collapse{border:1px solid var(--border);border-radius:var(--radius);background:var(--grad-card);margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow);}
+.collapse-toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:54px;padding:12px 16px;background:transparent;border:0;cursor:pointer;font:inherit;font-size:15px;font-weight:700;color:var(--primary);text-align:start;}
+.collapse-toggle:hover{background:var(--card)}
+.collapse-toggle:focus-visible{outline:3px solid var(--secondary);outline-offset:-3px}
+.collapse-toggle .chev{width:18px;height:18px;flex:0 0 18px;transition:transform .2s;color:var(--secondary);}
+.collapse-toggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.collapse-body{padding:0 16px 16px;border-top:1px solid var(--card);}
+.collapse-body .inner-collapse{margin-top:12px;margin-bottom:0;}
+
+/* ===== CODE BOX ===== */
+.code-box{background:var(--grad-1);border:2px dashed rgba(255,255,255,.4);border-radius:var(--radius);padding:24px 16px;text-align:center;margin-bottom:14px;box-shadow:var(--shadow-lg);}
+.code-box .code-label{font-size:12.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:rgba(209,237,211,.92);margin-bottom:10px;}
+.code-box .code-value{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:clamp(30px,9vw,44px);font-weight:800;letter-spacing:.09em;color:#fff;direction:ltr;word-break:break-all;line-height:1.15;text-shadow:0 3px 12px rgba(0,0,0,.3);}
+.code-box .code-note{font-size:13.5px;color:rgba(255,255,255,.9);margin-top:12px;font-weight:600;}
+
+/* ===== SUCCESS ===== */
+.success-badge{width:70px;height:70px;border-radius:50%;background:var(--grad-2);display:grid;place-items:center;margin:0 auto 14px;color:#fff;box-shadow:0 8px 24px rgba(92,112,87,.4);}
+.success-badge svg{width:36px;height:36px}
+
+/* ===== TIMELINE ===== */
+.timeline{list-style:none;margin:0;padding:0}
+.tl-item{position:relative;padding-inline-start:30px;padding-bottom:18px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:"";position:absolute;inset-inline-start:8px;top:20px;bottom:0;width:2px;background:var(--border);}
+.tl-item:last-child::before{display:none}
+.tl-dot{position:absolute;inset-inline-start:0;top:4px;width:18px;height:18px;border-radius:50%;background:var(--surface);border:3px solid var(--border);}
+.tl-item.done .tl-dot{background:var(--secondary);border-color:var(--secondary)}
+.tl-item.current .tl-dot{background:var(--primary);border-color:var(--primary);box-shadow:0 0 0 4px rgba(92,112,87,.18);}
+.tl-item.current .tl-msg{color:var(--primary);font-weight:800}
+.tl-msg{font-size:15px;font-weight:600;color:var(--text);line-height:1.45}
+.tl-time{font-size:12.5px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+
+/* ===== STATUS ===== */
+.status-pill{display:inline-flex;align-items:center;gap:6px;background:var(--card);color:var(--primary);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:800;letter-spacing:.02em;}
+.status-pill.cancelled{background:#FBE9E7;color:var(--danger)}
+.status-pill .pulse{width:8px;height:8px;border-radius:50%;background:var(--primary);animation:pulse 1.6s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--card);font-size:14.5px}
+.kv:last-child{border-bottom:0}
+.kv .k{color:var(--muted);font-weight:600}
+.kv .v{font-weight:700;text-align:end}
+
+/* ===== ETA BOX ===== */
+.eta-box{background:var(--grad-2);border:1px solid var(--primary-dark);border-radius:var(--radius);padding:18px;text-align:center;margin-bottom:14px;color:#fff;box-shadow:0 6px 20px rgba(92,112,87,.3);}
+.eta-box .eta-num{font-size:30px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;line-height:1.1;text-shadow:0 2px 8px rgba(0,0,0,.2);}
+.eta-box .eta-cap{font-size:12px;color:rgba(255,255,255,.9);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.eta-overdue{background:#FDF3E7;border-color:#E8C79A;color:#8A5A16;box-shadow:none;}
+.eta-overdue .eta-num{font-size:16px;color:#8A5A16;text-shadow:none;line-height:1.4}
+.eta-overdue .eta-cap{color:#8A5A16}
+
+/* ===== LOOKUP ===== */
+.lookup-card{max-width:520px;margin:0 auto}
+.lock-note{background:#FDF3E7;border:1px solid #E8C79A;color:#8A5A16;border-radius:var(--radius-sm);padding:10px 12px;font-size:13.5px;font-weight:700;margin-top:10px;}
+
+/* ===== MODAL ===== */
+.modal-backdrop{position:fixed;inset:0;z-index:180;background:rgba(31,42,29,.5);display:flex;align-items:center;justify-content:center;padding:18px;animation:fade .16s ease;}
+.modal{background:var(--surface);border-radius:var(--radius);width:100%;max-width:440px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);padding:20px;}
+.modal h2{margin-bottom:10px}
+.modal .modal-actions{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.modal .modal-actions .btn{width:100%}
+
+/* ===== TOAST ===== */
+.toast-wrap{position:fixed;inset-inline:0;bottom:calc(90px + env(safe-area-inset-bottom));z-index:200;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 14px;}
+@media (min-width:768px){.toast-wrap{bottom:calc(20px + env(safe-area-inset-bottom))}}
+.toast{background:var(--grad-1);color:#fff;font-size:14px;font-weight:600;padding:11px 18px;border-radius:999px;box-shadow:var(--shadow-lg);max-width:92vw;text-align:center;animation:toastIn .22s ease;}
+.toast.error{background:var(--danger)}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ===== DEMO / SYNC ===== */
+.demo-note{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.5;background:var(--card);padding:9px 11px;border-radius:var(--radius-sm);}
+.db-status{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;margin-top:6px;}
+.db-status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 2px rgba(255,255,255,.3);}
+.db-status.firebase{background:#D1FAE5;color:#065F46;}
+.db-status.local{background:#FEF3C7;color:#92400E;}
+.db-status.offline{background:#FBE9E7;color:var(--danger);}
+
+/* ===== SPINNER ===== */
+.spinner{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .7s linear infinite;flex:0 0 18px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.last-updated{font-size:12.5px;color:var(--muted);text-align:center;margin-top:12px;font-variant-numeric:tabular-nums;}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:400px){.opt-grid{grid-template-columns:1fr}.eta-btn{flex:1 1 calc(50% - 8px)}h1{font-size:20px}}
+@media (min-width:600px){.opt-grid.three{grid-template-columns:repeat(3,1fr)}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body class="is-loading">
+
+<!-- ============ LOADER ============ -->
+<div class="loader-screen" id="loaderScreen" role="status" aria-live="polite">
+  <div class="loader-content">
+    <div class="logo-wrap">
+      <div class="logo-glass" aria-hidden="true"></div>
+      <img class="logo-img" id="logoImg" src="logo.png" alt="Rapid Response Portal logo">
+      <svg class="logo-fallback" id="logoFallback" viewBox="0 0 24 24" width="70" height="70" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    </div>
+    <div class="title-block">
+      <h1 class="brand-title">Rapid Response Portal</h1>
+      <p class="brand-subtitle">Emergency Coordination System</p>
+    </div>
+    <div class="loading-text">
+      <span id="loadingTextInner">Preparing your portal</span>
+      <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+    </div>
+  </div>
+  <div class="loader-footer">Please wait</div>
+</div>
+
+<!-- ============ MOBILE HEADER ============ -->
+<header class="top-header">
+  <span class="logo" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+  </span>
+  <span class="brand-name">Family &amp; Ambulance Portal</span>
+</header>
+
+<!-- ============ APP SHELL ============ -->
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      </span>
+      <span class="brand-name">Family &amp; Ambulance</span>
+    </div>
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <a class="nav-link active" href="#/alert?role=crew" data-nav="alert" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17h4V5H2v12h3"/><path d="M14 8h4l4 4v5h-3"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M6 9h3M7.5 7.5v3"/></svg>
+        <span>Send Alert</span>
+      </a>
+      <a class="nav-link" href="#/track" data-nav="track">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span>Track Patient</span>
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <p>For emergencies, contact emergency services.</p>
+      <p>Priority is decided by hospital staff.</p>
+      <div class="db-status local" id="dbStatusPill"><span id="dbStatusText">Connecting…</span></div>
+    </div>
+  </aside>
+
+  <main class="app-main">
+
+    <!-- ---------- ALERT FORM ---------- -->
+    <section class="view" id="view-alert" hidden>
+      <div class="steps" id="stepIndicator">
+        <span class="step active"><span class="num">1</span><span>Details</span></span>
+        <span class="arrow" aria-hidden="true">→</span>
+        <span class="step"><span class="num">2</span><span>Confirmation</span></span>
+      </div>
+
+      <h1 id="alertTitle">Send Ambulance Pre-Arrival Alert</h1>
+      <p class="muted" id="alertSubtitle">Share the essential details before reaching the hospital.</p>
+
+      <form id="alertForm" novalidate autocomplete="off">
+
+        <div class="field-card">
+          <div class="field-head">
+            <div class="fh-icon">🩺</div>
+            <div class="fh-text">
+              <h3 class="fh-title">What happened?</h3>
+              <p class="fh-hint">Choose the option that best describes the situation.</p>
+            </div>
+          </div>
+          <div class="opt-grid" id="categoryGrid"></div>
+          <div id="otherDescWrap" hidden>
+            <div class="field" style="margin-top:12px;margin-bottom:0">
+              <label class="lbl" for="otherDesc">Short description (optional)</label>
+              <input type="text" id="otherDesc" maxlength="80" placeholder="e.g. Electric shock">
+            </div>
+          </div>
+          <p class="err" id="err-category" role="alert"></p>
+        </div>
+
+        <div class="field-card">
+          <div class="field-head">
+            <div class="fh-icon">👁️</div>
+            <div class="fh-text">
+              <h3 class="fh-title">Is the person awake?</h3>
+              <p class="fh-hint">Current level of consciousness.</p>
+            </div>
+          </div>
+          <div class="opt-grid three" id="consciousnessGrid"></div>
+          <p class="err" id="err-consciousness" role="alert"></p>
+        </div>
+
+        <div class="field-card">
+          <div class="field-head">
+            <div class="fh-icon">⏱️</div>
+            <div class="fh-text">
+              <h3 class="fh-title">When will you reach?</h3>
+              <p class="fh-hint">Estimated arrival time — not a medical priority.</p>
+            </div>
+          </div>
+          <div class="eta-row" id="etaRow">
+            <button type="button" class="eta-btn" data-eta="5">5 min</button>
+            <button type="button" class="eta-btn" data-eta="10">10 min</button>
+            <button type="button" class="eta-btn" data-eta="20">20 min</button>
+            <button type="button" class="eta-btn" data-eta="30">30+ min</button>
+            <button type="button" class="eta-btn" data-eta="custom">Custom</button>
+          </div>
+          <div id="etaCustomWrap" hidden style="margin-top:12px">
+            <div class="field" style="margin:0">
+              <label class="lbl" for="etaCustom">Estimated minutes</label>
+              <div class="unit-wrap">
+                <input type="number" id="etaCustom" class="ltr" inputmode="numeric" min="1" max="600" step="1" placeholder="15">
+                <span class="unit">min</span>
+              </div>
+            </div>
+          </div>
+          <p class="err" id="err-eta" role="alert"></p>
+        </div>
+
+        <div class="field-card">
+          <div class="field-head">
+            <div class="fh-icon">📞</div>
+            <div class="fh-text">
+              <h3 class="fh-title">Contact phone number</h3>
+              <p class="fh-hint">Use a number the hospital can reach you on.</p>
+            </div>
+          </div>
+          <input type="tel" id="phone" class="ltr" inputmode="tel" placeholder="03XXXXXXXXX" autocomplete="tel">
+          <p class="err" id="err-phone" role="alert"></p>
+        </div>
+
+        <div class="collapse">
+          <button type="button" class="collapse-toggle" id="detailsToggle" aria-expanded="false" aria-controls="detailsBody">
+            <span>➕ More Details (Optional)</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="collapse-body" id="detailsBody" hidden>
+            <h3 style="margin-top:14px">Patient details</h3>
+            <div class="field">
+              <label class="lbl" for="patientName">Patient name</label>
+              <input type="text" id="patientName" maxlength="60" autocomplete="off">
+            </div>
+            <label class="check-row" for="nameUnknown">
+              <input type="checkbox" id="nameUnknown">
+              <span>Name unknown</span>
+            </label>
+            <div class="field" style="margin-top:14px">
+              <label class="lbl" for="ageApprox">Approximate age</label>
+              <div class="unit-wrap">
+                <input type="number" id="ageApprox" class="ltr" inputmode="numeric" min="0" max="120" step="1" placeholder="—">
+                <span class="unit">years</span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="lbl" for="ageBand">Age band</label>
+              <select id="ageBand">
+                <option value="">— Select —</option>
+                <option value="Child">Child</option>
+                <option value="Adult">Adult</option>
+                <option value="Elderly">Elderly</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="lbl" for="gender">Gender</label>
+              <select id="gender">
+                <option value="">— Select —</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+
+            <h3>Condition details</h3>
+            <div class="field">
+              <label class="lbl" for="breathing">Breathing</label>
+              <select id="breathing">
+                <option value="">— Select —</option>
+                <option value="Normal">Normal</option>
+                <option value="Difficult">Difficult</option>
+                <option value="Not breathing">Not breathing</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="lbl" for="bleeding">Bleeding</label>
+              <select id="bleeding">
+                <option value="">— Select —</option>
+                <option value="None">None</option>
+                <option value="Some">Some</option>
+                <option value="Heavy">Heavy</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="lbl" for="notes">Additional notes</label>
+              <textarea id="notes" maxlength="200" placeholder="Anything else the hospital should know"></textarea>
+              <div class="char-counter" id="notesCounter">0 / 200</div>
+            </div>
+
+            <div id="crewFields">
+              <h3>Ambulance crew details</h3>
+              <div class="field">
+                <label class="lbl" for="ambulanceId">Ambulance ID</label>
+                <input type="text" id="ambulanceId" class="ltr" maxlength="20" placeholder="e.g. AMB-114">
+              </div>
+              <div class="field">
+                <label class="lbl" for="crewName">Crew member name</label>
+                <input type="text" id="crewName" maxlength="60">
+              </div>
+              <div class="collapse inner-collapse">
+                <button type="button" class="collapse-toggle" id="vitalsToggle" aria-expanded="false" aria-controls="vitalsBody">
+                  <span>➕ Add Vitals (Optional)</span>
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="collapse-body" id="vitalsBody" hidden>
+                  <div class="field" style="margin-top:14px">
+                    <label class="lbl" for="pulse">Pulse</label>
+                    <div class="unit-wrap">
+                      <input type="number" id="pulse" class="ltr" inputmode="numeric" min="20" max="250" step="1" placeholder="20–250">
+                      <span class="unit">bpm</span>
+                    </div>
+                    <p class="err" id="err-pulse" role="alert"></p>
+                  </div>
+                  <div class="field">
+                    <label class="lbl" for="spo2">SpO₂</label>
+                    <div class="unit-wrap">
+                      <input type="number" id="spo2" class="ltr" inputmode="numeric" min="50" max="100" step="1" placeholder="50–100">
+                      <span class="unit">%</span>
+                    </div>
+                    <p class="err" id="err-spo2" role="alert"></p>
+                  </div>
+                  <div class="field">
+                    <label class="lbl" for="bp">Systolic blood pressure</label>
+                    <div class="unit-wrap">
+                      <input type="number" id="bp" class="ltr" inputmode="numeric" min="40" max="260" step="1" placeholder="40–260">
+                      <span class="unit">mmHg</span>
+                    </div>
+                    <p class="err" id="err-bp" role="alert"></p>
+                  </div>
+                  <p class="small muted">Vitals are optional report data. Not used to calculate priority here.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <span>Send Emergency Alert</span>
+        </button>
+        <div class="btn-row" style="margin-top:10px">
+          <button type="button" class="btn btn-ghost" id="clearFormBtn">Clear Form</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ---------- CONFIRMATION ---------- -->
+    <section class="view" id="view-confirm" hidden>
+      <div class="center">
+        <div class="success-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h1>Emergency Alert Sent</h1>
+        <p class="muted">Your alert has been sent to the hospital. Keep your tracking code for reference.</p>
+      </div>
+
+      <div class="code-box">
+        <div class="code-label">Your tracking code</div>
+        <div class="code-value" id="confirmCode">ER-XXXXX</div>
+        <div class="code-note">Show this code at hospital reception.</div>
+      </div>
+
+      <div id="confirmStatusNote" class="card card-tinted small" style="text-align:center"></div>
+
+      <div class="btn-row" style="flex-direction:column;gap:10px">
+        <button type="button" class="btn btn-outline" id="copyCodeBtn">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Copy Tracking Code</span>
+        </button>
+        <button type="button" class="btn btn-outline" id="shareWaBtn">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span>Share on WhatsApp</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="goTrackBtn">Track Status</button>
+        <a class="btn btn-ghost" href="#/alert?role=crew">Send Another Alert</a>
+      </div>
+
+      <p class="small muted center" style="margin-top:16px">A hospital staff member will review your alert. Status shown here is updated by hospital staff.</p>
+    </section>
+
+    <!-- ---------- TRACK ---------- -->
+    <section class="view" id="view-track" hidden>
+      <div id="trackLookup">
+        <a class="back-link" href="#/alert?role=crew">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span>Back to Alert</span>
+        </a>
+        <div class="card lookup-card">
+          <h1>Track a Patient</h1>
+          <p class="muted">Enter the tracking code and the last four digits of the contact phone number used for the alert.</p>
+          <div class="field" style="margin-top:14px">
+            <label class="lbl" for="trackCode">Tracking code</label>
+            <input type="text" id="trackCode" class="ltr" maxlength="8" placeholder="ER-4F7K2" autocapitalize="characters" spellcheck="false">
+          </div>
+          <div class="field">
+            <label class="lbl" for="trackDigits">Last 4 digits of phone</label>
+            <input type="text" id="trackDigits" class="ltr" inputmode="numeric" maxlength="4" placeholder="4567" autocomplete="off">
+          </div>
+          <p class="err" id="err-track" role="alert"></p>
+          <div class="lock-note" id="lockNote" hidden></div>
+          <button type="button" class="btn btn-primary" id="lookupBtn" style="margin-top:6px">
+            <span>View Status</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="trackResult" hidden>
+        <a class="back-link" href="#/alert?role=crew">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span>Back to Alert</span>
+        </a>
+        <div class="card">
+          <div class="kv">
+            <span class="k">Tracking code</span>
+            <span class="v" id="rCode" style="direction:ltr;font-family:ui-monospace,Menlo,Consolas,monospace">—</span>
+          </div>
+          <div class="kv">
+            <span class="k">Patient</span>
+            <span class="v" id="rPatient">—</span>
+          </div>
+          <div class="kv">
+            <span class="k">Current status</span>
+            <span class="v"><span class="status-pill" id="rStatusPill">—</span></span>
+          </div>
+          <div class="kv" id="rWardRow" hidden>
+            <span class="k">Ward</span>
+            <span class="v" id="rWard">—</span>
+          </div>
+          <div class="kv" id="rTransferRow" hidden>
+            <span class="k">Transfer hospital</span>
+            <span class="v" id="rTransfer">—</span>
+          </div>
+        </div>
+
+        <div id="etaBoxWrap"></div>
+
+        <div class="card">
+          <h2>Status timeline</h2>
+          <ol class="timeline" id="rTimeline"></ol>
+        </div>
+
+        <div class="card" id="reporterActions">
+          <h2>Your actions</h2>
+          <div class="btn-row" style="flex-direction:column;gap:10px">
+            <button type="button" class="btn btn-outline" id="updateEtaBtn">Update ETA</button>
+            <button type="button" class="btn btn-danger" id="cancelAlertBtn">Cancel Alert</button>
+            <a class="btn btn-outline" id="callReceptionBtn" href="#" hidden>
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span>Call Hospital Reception</span>
+            </a>
+            <p class="small muted" id="receptionMissing" hidden>Reception number not configured.</p>
+          </div>
+        </div>
+
+        <p class="last-updated" id="lastUpdated" aria-live="polite"></p>
+
+        <div class="btn-row" style="margin-top:10px">
+          <button type="button" class="btn btn-ghost" id="exitTrackingBtn">Track another case</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="app-footer">
+      <p>For emergencies, contact emergency services.</p>
+    </footer>
+  </main>
+</div>
+
+<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="false"></div>
+<div id="modalRoot"></div>
+
+<!-- ============ FIREBASE SDK ============ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<!-- ============ LOADER CONTROLLER ============ -->
+<script>
+"use strict";
+(function(){
+  var LOAD_TIME = 2200;
+  var FADE_AT = 2400;
+  var screenEl = document.getElementById("loaderScreen");
+  var textEl = document.getElementById("loadingTextInner");
+  var logoImg = document.getElementById("logoImg");
+  var logoFb = document.getElementById("logoFallback");
+  if(logoImg){logoImg.addEventListener("error",function(){logoImg.style.display="none";if(logoFb)logoFb.style.display="block";});}
+  var MSGS = ["Preparing your portal","Connecting to hospital network","Loading emergency form"];
+  var stepDur = LOAD_TIME / MSGS.length, stepIdx = 0;
+  var msgTimer = setInterval(function(){
+    stepIdx++;
+    if(stepIdx < MSGS.length) textEl.textContent = MSGS[stepIdx];
+    if(stepIdx >= MSGS.length) clearInterval(msgTimer);
+  }, stepDur);
+  function finish(){
+    clearInterval(msgTimer);
+    if(textEl) textEl.textContent = "Ready";
+    if(screenEl) screenEl.classList.add("done");
+    document.body.classList.remove("is-loading");
+    setTimeout(function(){ if(screenEl && screenEl.parentNode) screenEl.parentNode.removeChild(screenEl); }, 700);
+  }
+  setTimeout(finish, FADE_AT);
+  setTimeout(function(){ if(screenEl && screenEl.parentNode){ document.body.classList.remove("is-loading"); screenEl.classList.add("done"); setTimeout(function(){ if(screenEl.parentNode) screenEl.parentNode.removeChild(screenEl); },700); } }, FADE_AT+2500);
+})();
+</script>
+
+<!-- ============ MAIN APP ============ -->
+<script>
+"use strict";
+
+/* ================================================================
+   FIREBASE CONFIG — same as staff/admin
+   ================================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAVbIXp5qg6TqHExaOsIWL5QAHgJGZnElA",
+  authDomain: "hospitalsystem-79d21.firebaseapp.com",
+  databaseURL: "https://hospitalsystem-79d21-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "hospitalsystem-79d21",
+  storageBucket: "hospitalsystem-79d21.firebasestorage.app",
+  messagingSenderId: "612665716882",
+  appId: "1:612665716882:web:b5d9d2bbca989a9a0bf64b"
+};
+
+/* ================================================================
+   CONSTANTS
+   ================================================================ */
+const ECS = {};
+ECS.KEYS = { cases:"ecs.cases", config:"ecs.config", myCases:"ecs.myCases", draft:"ecs.draft" };
+
+/* Canonical staff-compatible statuses */
+ECS.STATUS = {
+  PENDING:"PENDING", ACKNOWLEDGED:"ACKNOWLEDGED", ASSIGNED:"ASSIGNED",
+  EN_ROUTE:"EN_ROUTE", ARRIVED:"ARRIVED", ADMITTED:"ADMITTED",
+  COMPLETED:"COMPLETED", CANCELLED:"CANCELLED"
+};
+
+ECS.ACTIVE_STATUSES = ["PENDING","ACKNOWLEDGED","ASSIGNED","EN_ROUTE","ARRIVED","ADMITTED"];
+ECS.CANCELLABLE_STATUSES = ["PENDING","ACKNOWLEDGED"];
+ECS.ETA_EDITABLE_STATUSES = ["PENDING"];
+
+ECS.CODE_PREFIX = "ER-";
+ECS.CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+ECS.CODE_LENGTH = 5;
+ECS.CODE_REGEX = /^ER-[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{5}$/;
+
+ECS.DUPLICATE_WINDOW_MS = 30*60*1000;
+ECS.LOOKUP_MAX_FAILS = 3;
+ECS.LOOKUP_LOCK_MS = 30*1000;
+ECS.ETA_MIN = 1; ECS.ETA_MAX = 600;
+ECS.LIMITS = { pulse:{min:20,max:250}, spo2:{min:50,max:100}, bp:{min:40,max:260} };
+
+/* Category mapping — patient form label → staff-side key */
+ECS.CATEGORIES = [
+  { value:"Accident / Trauma",           key:"accident",    emoji:"🚗" },
+  { value:"Chest Pain / Heart Problem",  key:"cardiac",     emoji:"❤️" },
+  { value:"Stroke Symptoms",             key:"stroke",      emoji:"🧠" },
+  { value:"Breathing Difficulty",        key:"respiratory", emoji:"🫁" },
+  { value:"Burns",                       key:"trauma",      emoji:"🔥" },
+  { value:"Poisoning / Overdose",        key:"general",     emoji:"⚠️" },
+  { value:"Pregnancy Emergency",         key:"obstetric",   emoji:"🤰" },
+  { value:"Other",                       key:"general",     emoji:"➕" }
+];
+ECS.CONSCIOUSNESS = [
+  { value:"Awake",              emoji:"👁️" },
+  { value:"Drowsy or Confused", emoji:"😴" },
+  { value:"Unresponsive",       emoji:"🚨" }
+];
+
+/* Display strings keyed by canonical staff status */
+ECS.STATUS_TEXT = {
+  PENDING:      "Alert sent. Hospital is preparing.",
+  ACKNOWLEDGED: "Hospital has received your alert.",
+  ASSIGNED:     "Resources assigned. Ambulance may be dispatched.",
+  EN_ROUTE:     "Ambulance is on the way.",
+  ARRIVED:      "Patient has reached the hospital.",
+  ADMITTED:     "Patient has been admitted.",
+  COMPLETED:    "Patient has been discharged.",
+  CANCELLED:    "Alert cancelled."
+};
+ECS.STATUS_SHORT = {
+  PENDING:"Incoming", ACKNOWLEDGED:"Acknowledged", ASSIGNED:"Assigned",
+  EN_ROUTE:"En route", ARRIVED:"Arrived", ADMITTED:"Admitted",
+  COMPLETED:"Completed", CANCELLED:"Cancelled"
+};
+/* Legacy (patient-side) status fallbacks for old local cases */
+ECS.LEGACY_MAP = {
+  incoming:"PENDING", acknowledged:"ACKNOWLEDGED", arrived:"ARRIVED",
+  triage:"ADMITTED", in_treatment:"ADMITTED", admitted:"ADMITTED",
+  transferred:"ADMITTED", discharged:"COMPLETED", cancelled:"CANCELLED"
+};
+function canonicalStatus(s){
+  if(!s) return "PENDING";
+  if(ECS.STATUS_TEXT[s]) return s;
+  return ECS.LEGACY_MAP[s] || "PENDING";
+}
+
+ECS.DEFAULT_CONFIG = { hospitalName:"Civil Hospital Khairpur", emergencyNumber:"1122", receptionNumber:"" };
+
+/* ================================================================
+   LOCAL CACHE (fallback + demo)
+   ================================================================ */
+ECS.storage = (function(){
+  let available = true;
+  try { const t="__ecs_probe__"; window.localStorage.setItem(t,"1"); window.localStorage.removeItem(t); }
+  catch(e){ available = false; }
+
+  function read(k,f){ if(!available) return f; try{ const r=window.localStorage.getItem(k); if(r==null) return f; const p=JSON.parse(r); return p==null?f:p; }catch(e){ return f; } }
+  function write(k,v){ if(!available) return; try{ window.localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+
+  function getConfig(){ const s = read(ECS.KEYS.config, null); return Object.assign({}, ECS.DEFAULT_CONFIG, (s&&typeof s==="object")?s:{}); }
+  function saveConfig(cfg){ const m = Object.assign({}, getConfig(), cfg||{}); write(ECS.KEYS.config,m); return m; }
+
+  function getCases(){ const c = read(ECS.KEYS.cases, []); return Array.isArray(c)?c.filter(x=>x&&x.id):[]; }
+  function saveCases(l){ write(ECS.KEYS.cases, Array.isArray(l)?l:[]); }
+  function getCaseById(id){ if(!id) return null; return getCases().find(c=>c.id===id)||null; }
+
+  function cacheCase(c){
+    if(!c||!c.id) return;
+    const list = getCases();
+    const i = list.findIndex(x=>x.id===c.id);
+    if(i===-1) list.unshift(c); else list[i] = c;
+    saveCases(list);
+  }
+  function removeCached(id){ const list=getCases().filter(c=>c.id!==id); saveCases(list); }
+
+  function getMyCases(){ const m=read(ECS.KEYS.myCases,[]); return Array.isArray(m)?m.filter(x=>typeof x==="string"):[]; }
+  function addMyCase(id){ const l=getMyCases(); if(!l.includes(id)){ l.unshift(id); write(ECS.KEYS.myCases, l.slice(0,50)); } return getMyCases(); }
+
+  function getDraft(){ const d=read(ECS.KEYS.draft,null); return (d&&typeof d==="object")?d:null; }
+  function saveDraft(d){ write(ECS.KEYS.draft, d||{}); }
+  function clearDraft(){ if(available){ try{ window.localStorage.removeItem(ECS.KEYS.draft); }catch(e){} } }
+  function resetDemoData(){ if(!available) return; [ECS.KEYS.cases,ECS.KEYS.myCases,ECS.KEYS.draft].forEach(k=>{ try{ window.localStorage.removeItem(k); }catch(e){} }); }
+
+  return { isAvailable:()=>available, getConfig, saveConfig, getCases, getCaseById, cacheCase, removeCached, saveCases, getMyCases, addMyCase, getDraft, saveDraft, clearDraft, resetDemoData };
+})();
+
+/* ================================================================
+   CLOUD (Firebase Realtime Database)
+   ================================================================ */
+ECS.cloud = (function(){
+  let mode = "local";
+  let db = null;
+  const listeners = {}; // id -> unsub
+
+  function init(){
+    try{
+      if(!window.firebase || !firebase.initializeApp) throw new Error("Firebase SDK not loaded");
+      if(!firebase.apps || !firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.database();
+      mode = "firebase";
+      console.log("[ECS.cloud] Firebase RTDB connected");
+      updateStatusPill();
+      return true;
+    }catch(e){
+      console.warn("[ECS.cloud] Firebase init failed:", e.message);
+      mode = "local";
+      updateStatusPill();
+      return false;
+    }
+  }
+
+  function ref(path){ return db.ref(path); }
+
+  function createAlert(alert){
+    /* Always cache locally first */
+    ECS.storage.cacheCase(alert);
+    if(mode!=="firebase" || !db) return Promise.resolve({ok:true, mode:"local"});
+    return ref("alerts/"+alert.id).set(alert)
+      .then(()=>Promise.resolve({ok:true, mode:"firebase"}))
+      .catch(err=>{
+        console.error("[ECS.cloud] createAlert failed", err);
+        return Promise.resolve({ok:false, mode:"firebase", error:err.message});
+      });
+  }
+
+  function getAlert(id){
+    if(mode!=="firebase" || !db){
+      return Promise.resolve(ECS.storage.getCaseById(id));
+    }
+    return ref("alerts/"+id).once("value")
+      .then(snap=>{
+        const v = snap.val();
+        if(v){ ECS.storage.cacheCase(v); return v; }
+        /* fall back to local cache if not found in Firebase */
+        return ECS.storage.getCaseById(id);
+      })
+      .catch(err=>{
+        console.warn("[ECS.cloud] getAlert failed", err);
+        return ECS.storage.getCaseById(id);
+      });
+  }
+
+  function updateAlert(id, patch){
+    /* Local cache patch (deep-ish merge) */
+    const cur = ECS.storage.getCaseById(id);
+    if(cur){
+      const merged = Object.assign({}, cur);
+      Object.keys(patch||{}).forEach(k=>{
+        if(patch[k] && typeof patch[k]==="object" && !Array.isArray(patch[k]) && merged[k] && typeof merged[k]==="object"){
+          merged[k] = Object.assign({}, merged[k], patch[k]);
+        } else {
+          merged[k] = patch[k];
+        }
+      });
+      merged.updatedAt = new Date().toISOString();
+      ECS.storage.cacheCase(merged);
+    }
+    if(mode!=="firebase" || !db) return Promise.resolve({ok:true, mode:"local"});
+    return ref("alerts/"+id).update(patch)
+      .then(()=>Promise.resolve({ok:true, mode:"firebase"}))
+      .catch(err=>{
+        console.error("[ECS.cloud] updateAlert failed", err);
+        return Promise.resolve({ok:false, mode:"firebase", error:err.message});
+      });
+  }
+
+  function listenAlert(id, onChange){
+    /* Always invoke local callback first */
+    const localVal = ECS.storage.getCaseById(id);
+    if(localVal) setTimeout(()=>onChange(localVal), 0);
+    if(mode!=="firebase" || !db) return ()=>{};
+
+    const r = ref("alerts/"+id);
+    const handler = snap=>{
+      const v = snap.val();
+      if(v){ ECS.storage.cacheCase(v); onChange(v); }
+    };
+    r.on("value", handler, err=>console.warn("[ECS.cloud] listen error", err));
+    const unsub = ()=>{ try{ r.off("value", handler); }catch(e){} };
+    listeners[id] = unsub;
+    return unsub;
+  }
+
+  function unlistenAlert(id){
+    if(listeners[id]){ listeners[id](); delete listeners[id]; }
+  }
+
+  function isFirebase(){ return mode === "firebase"; }
+  function getMode(){ return mode; }
+
+  function updateStatusPill(){
+    const pill = document.getElementById("dbStatusPill");
+    const txt = document.getElementById("dbStatusText");
+    if(!pill || !txt) return;
+    if(mode === "firebase"){
+      pill.className = "db-status firebase";
+      txt.textContent = "Live · Firebase";
+    } else {
+      pill.className = "db-status local";
+      txt.textContent = "Offline · Local";
+    }
+  }
+
+  return { init, createAlert, getAlert, updateAlert, listenAlert, unlistenAlert, isFirebase, getMode };
+})();
+
+/* ================================================================
+   UTILITIES
+   ================================================================ */
+function normalizePhone(raw){
+  if(raw==null) return null;
+  let s = String(raw).replace(/[\s\-().]/g,"");
+  if(/^3\d{9}$/.test(s)) s = "0"+s;
+  if(/^03\d{9}$/.test(s))    return "+92"+s.slice(1);
+  if(/^\+923\d{9}$/.test(s)) return s;
+  if(/^923\d{9}$/.test(s))   return "+"+s;
+  if(/^00923\d{9}$/.test(s)) return "+"+s.slice(2);
+  return null;
+}
+function lastFour(p){ if(!p) return ""; return String(p).replace(/\D/g,"").slice(-4); }
+function generateTrackingCode(taken){
+  const T = new Set(taken||[]);
+  let code="", g=0;
+  do{
+    let b="";
+    for(let i=0;i<ECS.CODE_LENGTH;i++) b += ECS.CODE_CHARS.charAt(Math.floor(Math.random()*ECS.CODE_CHARS.length));
+    code = ECS.CODE_PREFIX + b; g++;
+  } while(T.has(code) && g<200);
+  return code;
+}
+function isValidTrackingCode(v){ return ECS.CODE_REGEX.test(String(v||"").trim().toUpperCase()); }
+function normalizeTrackingCode(v){
+  let s = String(v||"").trim().toUpperCase().replace(/\s/g,"");
+  if(s && !s.startsWith("ER-")) s = "ER-" + s.replace(/^ER-?/,"");
+  return s;
+}
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+function pad2(n){ return n<10?"0"+n:String(n); }
+function nowIso(){ return new Date().toISOString(); }
+function fmtDateTime(iso){ const d=new Date(iso); if(isNaN(d.getTime())) return "—"; const M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return pad2(d.getDate())+" "+M[d.getMonth()]+", "+pad2(d.getHours())+":"+pad2(d.getMinutes()); }
+function fmtClock(iso){ const d=new Date(iso); if(isNaN(d.getTime())) return "—"; return pad2(d.getHours())+":"+pad2(d.getMinutes())+":"+pad2(d.getSeconds()); }
+function initialsFrom(name){ if(!name) return ""; const p=String(name).trim().split(/\s+/).filter(Boolean); if(!p.length) return ""; if(p.length===1) return p[0].charAt(0).toUpperCase()+"."; return (p[0].charAt(0)+". "+p[p.length-1].charAt(0)+".").toUpperCase(); }
+
+/* Priority derive — matches staff-side priorities */
+function derivePriority(categoryKey, consciousness){
+  if(consciousness === "Unresponsive") return "CRITICAL";
+  if(categoryKey === "cardiac" || categoryKey === "stroke") return "CRITICAL";
+  if(categoryKey === "accident" || categoryKey === "trauma" || categoryKey === "obstetric") return "HIGH";
+  if(consciousness === "Drowsy or Confused") return "HIGH";
+  if(categoryKey === "respiratory" || categoryKey === "pediatric") return "HIGH";
+  return "MEDIUM";
+}
+
+/* Build staff-compatible alert payload from patient form */
+function buildStaffAlert(formData){
+  const catMeta = ECS.CATEGORIES.find(c=>c.value===formData.category);
+  const catKey = catMeta ? catMeta.key : "general";
+  const priority = derivePriority(catKey, formData.consciousness);
+  const patientName = formData.nameUnknown || !formData.patientName ? "" : formData.patientName;
+  const id = formData.id;
+
+  return {
+    /* ===== STAFF-COMPATIBLE FLAT FIELDS ===== */
+    id,
+    trackingCode: id,
+    patientName,
+    age: (formData.ageApprox != null && formData.ageApprox !== "") ? Number(formData.ageApprox) : null,
+    gender: formData.gender || "",
+    category: catKey,
+    contact: formData.normalizedPhone,
+    location: "",
+    eta: formData.etaMinutes,
+    status: "PENDING",
+    priority,
+    notes: formData.notes || "",
+    createdAt: formData.createdAt,
+
+    /* ===== PATIENT-SIDE RICH FIELDS (staff/admin can ignore) ===== */
+    source: "patient",
+    reporter: {
+      name: formData.crewName || "",
+      ambulanceId: formData.ambulanceId || "",
+      phone: formData.normalizedPhone
+    },
+    patient: {
+      name: patientName,
+      isUnknown: formData.nameUnknown || !patientName,
+      ageApprox: (formData.ageApprox != null && formData.ageApprox !== "") ? Number(formData.ageApprox) : null,
+      ageBand: formData.ageBand || "",
+      gender: formData.gender || ""
+    },
+    condition: {
+      categoryText: formData.category,
+      consciousness: formData.consciousness,
+      breathing: formData.breathing || "",
+      bleeding: formData.bleeding || "",
+      vitals: {
+        pulse: (formData.pulse != null && formData.pulse !== "") ? Number(formData.pulse) : null,
+        spo2:  (formData.spo2  != null && formData.spo2  !== "") ? Number(formData.spo2)  : null,
+        bp:    (formData.bp    != null && formData.bp    !== "") ? Number(formData.bp)    : null
+      },
+      notes: formData.notes || "",
+      otherDescription: (formData.category === "Other") ? (formData.otherDesc || "") : ""
+    },
+    etaDetail: { minutes: formData.etaMinutes, setAt: formData.createdAt },
+    statusHistory: [{ status:"PENDING", at: formData.createdAt, by:"patient-site" }],
+    publicInfo: { ward:"", transferHospital:"" },
+    internal: { severity: null, assignedDoctor:"", bed:"" }
+  };
+}
+
+/* ================================================================
+   UI HELPERS
+   ================================================================ */
+const toastWrap = document.getElementById("toastWrap");
+function toast(msg, type, ms){
+  const el = document.createElement("div");
+  el.className = "toast" + (type==="error" ? " error" : "");
+  el.textContent = msg;
+  toastWrap.appendChild(el);
+  setTimeout(()=>{
+    el.style.transition="opacity .25s, transform .25s";
+    el.style.opacity="0"; el.style.transform="translateY(10px)";
+    setTimeout(()=>el.remove(), 260);
+  }, ms||2600);
+}
+
+const modalRoot = document.getElementById("modalRoot");
+function openModal(opts){
+  closeModal();
+  const bd = document.createElement("div");
+  bd.className = "modal-backdrop"; bd.setAttribute("role","dialog"); bd.setAttribute("aria-modal","true");
+  const m = document.createElement("div"); m.className = "modal";
+  const h = document.createElement("h2"); h.textContent = opts.title||""; m.appendChild(h);
+  if(opts.body){ const p=document.createElement("p"); p.className="muted"; p.textContent=opts.body; m.appendChild(p); }
+  if(opts.content) m.appendChild(opts.content);
+  const acts = document.createElement("div"); acts.className="modal-actions";
+  (opts.actions||[]).forEach(a=>{
+    const b = document.createElement("button"); b.type="button";
+    b.className = "btn " + (a.variant||"btn-outline");
+    b.textContent = a.label;
+    b.addEventListener("click", ()=>{ if(a.onClick) a.onClick(); if(a.close!==false) closeModal(); });
+    acts.appendChild(b);
+  });
+  m.appendChild(acts); bd.appendChild(m); modalRoot.appendChild(bd);
+  bd.addEventListener("click", e=>{ if(e.target===bd && opts.dismissible!==false) closeModal(); });
+  const f = m.querySelectorAll("button, [href], input, select, textarea");
+  if(f.length) f[f.length-1].focus();
+  document.addEventListener("keydown", escHandler);
+  return m;
+}
+function escHandler(e){ if(e.key==="Escape") closeModal(); }
+function closeModal(){ modalRoot.innerHTML=""; document.removeEventListener("keydown", escHandler); }
+
+/* ================================================================
+   ROUTER
+   ================================================================ */
+function parseHash(){
+  const raw = window.location.hash.replace(/^#/,"") || "/alert?role=crew";
+  const qi = raw.indexOf("?");
+  const path = qi===-1 ? raw : raw.slice(0,qi);
+  const qs = qi===-1 ? "" : raw.slice(qi+1);
+  const params = {};
+  qs.split("&").forEach(p=>{ if(!p) return; const [k,v]=p.split("="); params[decodeURIComponent(k)]=decodeURIComponent(v||""); });
+  return { path:path||"/alert", params };
+}
+function showView(id){ ["view-alert","view-confirm","view-track"].forEach(v=>{ const el=document.getElementById(v); if(el) el.hidden = (v!==id); }); window.scrollTo({top:0,behavior:"auto"}); }
+function updateNavActive(path){
+  document.querySelectorAll(".nav-link").forEach(a=>{
+    const href = a.getAttribute("href")||""; let active = false;
+    if(path.indexOf("/alert")===0 && href.indexOf("#/alert")===0) active=true;
+    if(path.indexOf("/confirm")===0 && href.indexOf("#/alert")===0) active=true;
+    if(path.indexOf("/track")===0 && href.indexOf("#/track")===0) active=true;
+    a.classList.toggle("active", active);
+    if(active) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
+  });
+}
+function route(){
+  const { path, params } = parseHash();
+  closeModal();
+  updateNavActive(path);
+  if(path==="/home"||path==="/"){ window.location.hash="#/alert?role=crew"; return; }
+  if(path==="/alert"){
+    const role = params.role==="family" ? "family" : "crew";
+    setupAlertForm(role); showView("view-alert");
+  } else if(path==="/confirm"){
+    const code = params.id||"";
+    if(code){ currentConfirmCode = code; document.getElementById("confirmCode").textContent = code; renderConfirmNote(code); showView("view-confirm"); }
+    else window.location.hash="#/alert?role=crew";
+  } else if(path==="/track"){
+    teardownTracking();
+    if(params.id) document.getElementById("trackCode").value = normalizeTrackingCode(params.id);
+    document.getElementById("trackLookup").hidden = false;
+    document.getElementById("trackResult").hidden = true;
+    showView("view-track");
+    setTimeout(()=>{ const el=document.getElementById("trackDigits"); if(el && !document.getElementById("trackLookup").hidden) el.focus(); }, 60);
+  } else window.location.hash="#/alert?role=crew";
+}
+window.addEventListener("hashchange", route);
+
+/* ================================================================
+   ALERT FORM
+   ================================================================ */
+let currentConfirmCode = "";
+let currentRole = "crew";
+let selectedEta = null;
+let selectedEtaIsCustom = false;
+let isSubmitting = false;
+let draftSaveTimer = null;
+
+const form = document.getElementById("alertForm");
+function $(id){ return document.getElementById(id); }
+
+let currentDraftCategory = "";
+let currentDraftConsciousness = "";
+
+function buildCategoryGrid(){
+  const grid = $("categoryGrid"); if(!grid) return;
+  const prev = grid.querySelector("input[name='category']:checked");
+  const prevVal = prev ? prev.value : (currentDraftCategory||"");
+  grid.innerHTML = "";
+  ECS.CATEGORIES.forEach(cat=>{
+    const label = document.createElement("label"); label.className="opt";
+    const input = document.createElement("input");
+    input.type="radio"; input.name="category"; input.value=cat.value;
+    if(prevVal===cat.value) input.checked = true;
+    const body = document.createElement("span"); body.className="opt-body";
+    const em = document.createElement("span"); em.className="opt-emoji"; em.textContent = cat.emoji;
+    const tx = document.createElement("span"); tx.className="opt-txt"; tx.textContent = cat.value;
+    body.appendChild(em); body.appendChild(tx);
+    label.appendChild(input); label.appendChild(body); grid.appendChild(label);
+  });
+}
+function buildConsciousnessGrid(){
+  const grid = $("consciousnessGrid"); if(!grid) return;
+  const prev = grid.querySelector("input[name='consciousness']:checked");
+  const prevVal = prev ? prev.value : (currentDraftConsciousness||"");
+  grid.innerHTML = "";
+  ECS.CONSCIOUSNESS.forEach(item=>{
+    const label = document.createElement("label"); label.className="opt";
+    const input = document.createElement("input");
+    input.type="radio"; input.name="consciousness"; input.value=item.value;
+    if(prevVal===item.value) input.checked = true;
+    const body = document.createElement("span"); body.className="opt-body";
+    const em = document.createElement("span"); em.className="opt-emoji"; em.textContent = item.emoji;
+    const tx = document.createElement("span"); tx.className="opt-txt"; tx.textContent = item.value;
+    body.appendChild(em); body.appendChild(tx);
+    label.appendChild(input); label.appendChild(body); grid.appendChild(label);
+  });
+}
+function updateAlertHeader(){
+  if(currentRole==="family"){
+    $("alertTitle").textContent = "Send Emergency Alert";
+    $("alertSubtitle").textContent = "Tell the hospital that someone may need emergency care.";
+    document.title = "Send Emergency Alert — Rapid Response Portal";
+  } else {
+    $("alertTitle").textContent = "Send Ambulance Pre-Arrival Alert";
+    $("alertSubtitle").textContent = "Share the essential details before reaching the hospital.";
+    document.title = "Send Ambulance Alert — Rapid Response Portal";
+  }
+}
+function setupAlertForm(role){
+  currentRole = role==="family" ? "family" : "crew";
+  updateAlertHeader();
+  buildCategoryGrid(); buildConsciousnessGrid();
+  $("crewFields").hidden = (currentRole !== "crew");
+  clearAllErrors();
+  restoreDraft();
+}
+
+/* ETA chips */
+const etaRow = $("etaRow");
+etaRow.addEventListener("click", e=>{
+  const btn = e.target.closest(".eta-btn"); if(!btn) return;
+  const val = btn.getAttribute("data-eta");
+  etaRow.querySelectorAll(".eta-btn").forEach(b=>b.setAttribute("aria-pressed","false"));
+  btn.setAttribute("aria-pressed","true");
+  clearError("err-eta");
+  if(val==="custom"){ selectedEtaIsCustom = true; selectedEta = null; $("etaCustomWrap").hidden=false; $("etaCustom").focus(); }
+  else { selectedEtaIsCustom = false; selectedEta = parseInt(val,10); $("etaCustomWrap").hidden=true; $("etaCustom").value=""; }
+  scheduleDraftSave();
+});
+$("etaCustom").addEventListener("input", ()=>{
+  const v = $("etaCustom").value.trim();
+  selectedEta = v==="" ? null : parseInt(v,10);
+  clearError("err-eta"); scheduleDraftSave();
+});
+
+/* Change handlers */
+document.addEventListener("change", e=>{
+  if(e.target.name==="category"){ $("otherDescWrap").hidden = (e.target.value!=="Other"); clearError("err-category"); }
+  if(e.target.name==="consciousness"){ clearError("err-consciousness"); }
+});
+$("nameUnknown").addEventListener("change", e=>{
+  const on = e.target.checked;
+  $("patientName").disabled = on;
+  if(on) $("patientName").value="";
+  scheduleDraftSave();
+});
+function updateNotesCounter(){
+  const el = $("notes"), c = $("notesCounter"); if(!el||!c) return;
+  const len = el.value.length; c.textContent = len+" / 200"; c.classList.toggle("warn", len>=190);
+}
+$("notes").addEventListener("input", ()=>{ updateNotesCounter(); scheduleDraftSave(); });
+
+/* Collapse */
+function wireCollapse(tId, bId){
+  const t = $(tId), b = $(bId); if(!t||!b) return;
+  t.addEventListener("click", ()=>{
+    const open = t.getAttribute("aria-expanded")==="true";
+    t.setAttribute("aria-expanded", String(!open)); b.hidden = open;
+  });
+}
+wireCollapse("detailsToggle","detailsBody");
+wireCollapse("vitalsToggle","vitalsBody");
+
+/* Validation */
+function setError(id, msg){ const el=$(id); if(!el) return; el.textContent=msg; el.classList.add("show"); }
+function clearError(id){ const el=$(id); if(!el) return; el.textContent=""; el.classList.remove("show"); }
+function clearAllErrors(){ document.querySelectorAll(".err").forEach(el=>{ el.textContent=""; el.classList.remove("show"); }); document.querySelectorAll(".invalid").forEach(el=>el.classList.remove("invalid")); }
+function markInvalid(el){ if(el) el.classList.add("invalid"); }
+
+/* Draft */
+function collectDraft(){
+  const catEl = form.querySelector("input[name='category']:checked");
+  const conEl = form.querySelector("input[name='consciousness']:checked");
+  return {
+    role: currentRole,
+    category: catEl?catEl.value:"",
+    consciousness: conEl?conEl.value:"",
+    otherDesc: $("otherDesc").value,
+    etaMinutes: selectedEta, etaIsCustom: selectedEtaIsCustom, etaCustomRaw: $("etaCustom").value,
+    phone: $("phone").value,
+    patientName: $("patientName").value, nameUnknown: $("nameUnknown").checked,
+    ageApprox: $("ageApprox").value, ageBand: $("ageBand").value, gender: $("gender").value,
+    breathing: $("breathing").value, bleeding: $("bleeding").value, notes: $("notes").value,
+    ambulanceId: $("ambulanceId").value, crewName: $("crewName").value,
+    pulse: $("pulse").value, spo2: $("spo2").value, bp: $("bp").value,
+    savedAt: nowIso()
+  };
+}
+function scheduleDraftSave(){ clearTimeout(draftSaveTimer); draftSaveTimer = setTimeout(()=>{ try{ ECS.storage.saveDraft(collectDraft()); }catch(e){} }, 500); }
+function restoreDraft(){
+  const d = ECS.storage.getDraft();
+  if(!d || typeof d!=="object") return;
+  if(d.role && d.role !== currentRole) return;
+  if(d.category){ currentDraftCategory=d.category; const el = form.querySelector("input[name='category'][value='"+CSS.escape(d.category)+"']"); if(el){ el.checked=true; if(d.category==="Other") $("otherDescWrap").hidden=false; } }
+  if(d.consciousness){ currentDraftConsciousness=d.consciousness; const el = form.querySelector("input[name='consciousness'][value='"+CSS.escape(d.consciousness)+"']"); if(el) el.checked=true; }
+  if(d.otherDesc) $("otherDesc").value = d.otherDesc;
+  if(d.etaIsCustom && d.etaCustomRaw){ selectedEtaIsCustom=true; $("etaCustomWrap").hidden=false; $("etaCustom").value=d.etaCustomRaw; selectedEta = d.etaCustomRaw===""?null:parseInt(d.etaCustomRaw,10); const btn = etaRow.querySelector("[data-eta='custom']"); if(btn) btn.setAttribute("aria-pressed","true"); }
+  else if(typeof d.etaMinutes==="number" && !isNaN(d.etaMinutes)){ selectedEta=d.etaMinutes; const btn = etaRow.querySelector("[data-eta='"+d.etaMinutes+"']"); if(btn) btn.setAttribute("aria-pressed","true"); }
+  if(d.phone) $("phone").value=d.phone;
+  if(d.patientName) $("patientName").value=d.patientName;
+  if(d.nameUnknown){ $("nameUnknown").checked=true; $("patientName").disabled=true; }
+  if(d.ageApprox) $("ageApprox").value=d.ageApprox;
+  if(d.ageBand) $("ageBand").value=d.ageBand;
+  if(d.gender) $("gender").value=d.gender;
+  if(d.breathing) $("breathing").value=d.breathing;
+  if(d.bleeding) $("bleeding").value=d.bleeding;
+  if(d.notes) $("notes").value=d.notes;
+  if(d.ambulanceId) $("ambulanceId").value=d.ambulanceId;
+  if(d.crewName) $("crewName").value=d.crewName;
+  if(d.pulse) $("pulse").value=d.pulse;
+  if(d.spo2) $("spo2").value=d.spo2;
+  if(d.bp) $("bp").value=d.bp;
+  updateNotesCounter();
+  toast("Draft restored.");
+}
+form.addEventListener("input", ()=>{ clearAllErrors(); scheduleDraftSave(); });
+form.addEventListener("change", scheduleDraftSave);
+
+/* Clear form */
+$("clearFormBtn").addEventListener("click", ()=>{
+  openModal({
+    title:"Clear this form?",
+    body:"All entered details in this draft will be removed. This cannot be undone.",
+    actions:[
+      { label:"Yes, Clear Form", variant:"btn-danger", onClick:()=>{
+          form.reset(); selectedEta=null; selectedEtaIsCustom=false;
+          currentDraftCategory=""; currentDraftConsciousness="";
+          $("etaCustomWrap").hidden=true; $("otherDescWrap").hidden=true; $("patientName").disabled=false;
+          etaRow.querySelectorAll(".eta-btn").forEach(b=>b.setAttribute("aria-pressed","false"));
+          clearAllErrors(); updateNotesCounter();
+          try{ ECS.storage.clearDraft(); }catch(e){}
+          toast("Form cleared.");
+        } },
+      { label:"Keep Alert", variant:"btn-outline" }
+    ]
+  });
+});
+
+function validateOptionalNumber(id, errId, limits, msg){
+  const raw = $(id).value.trim();
+  if(raw==="") return true;
+  const n = Number(raw);
+  if(!Number.isFinite(n)||!Number.isInteger(n)||n<limits.min||n>limits.max){ setError(errId, msg); markInvalid($(id)); return false; }
+  return true;
+}
+
+/* Submit */
+form.addEventListener("submit", async e=>{
+  e.preventDefault();
+  if(isSubmitting) return;
+
+  clearAllErrors();
+  let firstInvalid = null;
+
+  const catEl = form.querySelector("input[name='category']:checked");
+  if(!catEl){ setError("err-category","Please select the condition that best describes the emergency."); if(!firstInvalid) firstInvalid = $("categoryGrid").querySelector("input"); }
+
+  const conEl = form.querySelector("input[name='consciousness']:checked");
+  if(!conEl){ setError("err-consciousness","Please select the person's current level of consciousness."); if(!firstInvalid) firstInvalid = $("consciousnessGrid").querySelector("input"); }
+
+  if(selectedEtaIsCustom){
+    const raw = $("etaCustom").value.trim();
+    if(raw===""){ setError("err-eta","Enter the estimated number of minutes."); markInvalid($("etaCustom")); if(!firstInvalid) firstInvalid = $("etaCustom"); }
+    else{
+      const n = Number(raw);
+      if(!Number.isInteger(n)||n<ECS.ETA_MIN||n>ECS.ETA_MAX){ setError("err-eta","Enter a number of minutes between "+ECS.ETA_MIN+" and "+ECS.ETA_MAX+"."); markInvalid($("etaCustom")); if(!firstInvalid) firstInvalid = $("etaCustom"); }
+      else selectedEta = n;
+    }
+  } else if(selectedEta===null||isNaN(selectedEta)){
+    setError("err-eta","Choose an arrival time or enter the estimated number of minutes.");
+    if(!firstInvalid) firstInvalid = etaRow.querySelector(".eta-btn");
+  }
+
+  const rawPhone = $("phone").value.trim();
+  const normPhone = normalizePhone(rawPhone);
+  if(!normPhone){ setError("err-phone","Enter a valid Pakistani mobile number, for example 03001234567."); markInvalid($("phone")); if(!firstInvalid) firstInvalid = $("phone"); }
+
+  let optOk = true;
+  if(!validateOptionalNumber("pulse","err-pulse",ECS.LIMITS.pulse,"Pulse must be between 20 and 250.")) optOk=false;
+  if(!validateOptionalNumber("spo2","err-spo2",ECS.LIMITS.spo2,"SpO₂ must be between 50 and 100.")) optOk=false;
+  if(!validateOptionalNumber("bp","err-bp",ECS.LIMITS.bp,"Systolic blood pressure must be between 40 and 260.")) optOk=false;
+
+  if(firstInvalid || !optOk){
+    if(firstInvalid){
+      const body = $("detailsBody");
+      if(body && body.contains(firstInvalid)){ body.hidden=false; $("detailsToggle").setAttribute("aria-expanded","true"); }
+      const vit = $("vitalsBody");
+      if(vit && vit.contains(firstInvalid)){
+        vit.hidden=false; $("vitalsToggle").setAttribute("aria-expanded","true");
+        $("detailsBody").hidden=false; $("detailsToggle").setAttribute("aria-expanded","true");
+      }
+      try{ firstInvalid.focus(); }catch(e){}
+      try{ firstInvalid.scrollIntoView({block:"center",behavior:"smooth"}); }catch(e){}
+    }
+    return;
+  }
+
+  /* Duplicate check */
+  const dup = findRecentDuplicate(normPhone);
+  if(dup){
+    openModal({
+      title:"Active case found",
+      body:"You already have an active case "+dup.id+". Would you like to view it or create a new one?",
+      dismissible:false,
+      actions:[
+        { label:"View Existing Case", variant:"btn-primary", onClick:()=>{ window.location.hash="#/track?id="+encodeURIComponent(dup.id); } },
+        { label:"Create New Case", variant:"btn-outline", onClick:()=>{ doSubmit(normPhone, catEl, conEl); } },
+        { label:"Go Back", variant:"btn-ghost" }
+      ]
+    });
+    return;
+  }
+  doSubmit(normPhone, catEl, conEl);
+});
+
+function findRecentDuplicate(normPhone){
+  if(!normPhone) return null;
+  const cases = ECS.storage.getCases();
+  const cutoff = Date.now() - ECS.DUPLICATE_WINDOW_MS;
+  return cases.find(c=>{
+    if(!c || !c.reporter || c.reporter.phone !== normPhone) return false;
+    if(ECS.ACTIVE_STATUSES.indexOf(canonicalStatus(c.status))===-1) return false;
+    const t = new Date(c.createdAt).getTime();
+    return !isNaN(t) && t>=cutoff;
+  }) || null;
+}
+
+async function doSubmit(normPhone, catEl, conEl){
+  if(isSubmitting) return;
+  isSubmitting = true;
+  const btn = $("submitBtn");
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span><span>Sending…</span>';
+
+  /* Build payload */
+  const existing = ECS.storage.getCases();
+  const id = generateTrackingCode(existing.map(c=>c.id));
+  const createdAt = nowIso();
+
+  const formData = {
+    id, createdAt,
+    category: catEl.value,
+    consciousness: conEl.value,
+    otherDesc: $("otherDesc").value.trim(),
+    etaMinutes: selectedEta,
+    normalizedPhone: normPhone,
+    patientName: $("patientName").value.trim(),
+    nameUnknown: $("nameUnknown").checked,
+    ageApprox: $("ageApprox").value.trim(),
+    ageBand: $("ageBand").value,
+    gender: $("gender").value,
+    breathing: $("breathing").value,
+    bleeding: $("bleeding").value,
+    notes: $("notes").value.trim(),
+    ambulanceId: $("ambulanceId").value.trim(),
+    crewName: $("crewName").value.trim(),
+    pulse: $("pulse").value.trim(),
+    spo2: $("spo2").value.trim(),
+    bp: $("bp").value.trim()
+  };
+
+  const alertPayload = buildStaffAlert(formData);
+
+  try{
+    /* Always cache + write to Firebase */
+    ECS.storage.addMyCase(id);
+    ECS.storage.clearDraft();
+    const res = await ECS.cloud.createAlert(alertPayload);
+
+    if(res.mode === "local"){
+      toast("Saved offline. Will sync when connected.", null, 3400);
+    }
+
+    isSubmitting = false;
+    btn.disabled = false;
+    btn.innerHTML = original;
+
+    resetFormAfterSubmit();
+    window.location.hash = "#/confirm?id=" + encodeURIComponent(id);
+
+  } catch(err){
+    console.error("[submit] failed", err);
+    isSubmitting = false;
+    btn.disabled = false;
+    btn.innerHTML = original;
+    toast("Could not send alert. Please try again.", "error", 4200);
+  }
+}
+
+function resetFormAfterSubmit(){
+  form.reset();
+  selectedEta=null; selectedEtaIsCustom=false;
+  currentDraftCategory=""; currentDraftConsciousness="";
+  $("etaCustomWrap").hidden=true; $("otherDescWrap").hidden=true; $("patientName").disabled=false;
+  etaRow.querySelectorAll(".eta-btn").forEach(b=>b.setAttribute("aria-pressed","false"));
+  updateNotesCounter(); clearAllErrors();
+}
+
+/* ================================================================
+   CONFIRMATION
+   ================================================================ */
+function renderConfirmNote(code){
+  const note = $("confirmStatusNote");
+  const c = ECS.storage.getCaseById(code);
+  if(!c){ note.textContent=""; note.hidden=true; return; }
+  note.hidden = false;
+  note.textContent = ECS.STATUS_TEXT[canonicalStatus(c.status)] || "";
+}
+$("copyCodeBtn").addEventListener("click", async ()=>{
+  const code = $("confirmCode").textContent;
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ await navigator.clipboard.writeText(code); toast("Tracking code copied."); return; }
+    throw new Error("no clipboard");
+  } catch(e){
+    try{ const r=document.createRange(); r.selectNodeContents($("confirmCode")); const s=window.getSelection(); s.removeAllRanges(); s.addRange(r); }catch(e2){}
+    toast("Could not copy automatically. Please select and copy manually.", "error", 4200);
+  }
+});
+$("shareWaBtn").addEventListener("click", ()=>{
+  const code = $("confirmCode").textContent;
+  const text = "Emergency alert tracking code: " + code + ". Keep this code for reference.";
+  window.open("https://wa.me/?text="+encodeURIComponent(text), "_blank", "noopener,noreferrer");
+});
+$("goTrackBtn").addEventListener("click", ()=>{
+  const code = $("confirmCode").textContent;
+  window.location.hash = "#/track?id=" + encodeURIComponent(code);
+});
+
+/* ================================================================
+   TRACKING
+   ================================================================ */
+let verifiedCaseId = null;
+let countdownTimer = null;
+let lookupFails = 0;
+let lockUntil = 0;
+let lockTicker = null;
+let lastRenderedStatus = null;
+let cloudUnsub = null;
+
+function teardownTracking(){
+  clearInterval(countdownTimer); countdownTimer = null;
+  clearInterval(lockTicker); lockTicker = null;
+  if(cloudUnsub){ try{ cloudUnsub(); }catch(e){} cloudUnsub=null; }
+  if(verifiedCaseId) ECS.cloud.unlistenAlert(verifiedCaseId);
+  verifiedCaseId = null; lastRenderedStatus = null;
+  $("trackResult").hidden = true; $("trackLookup").hidden = false;
+  $("err-track").classList.remove("show"); $("err-track").textContent="";
+  $("lockNote").hidden = true;
+  const btn = $("lookupBtn"); btn.disabled = false; btn.innerHTML = '<span>View Status</span>';
+}
+
+$("trackCode").addEventListener("input", e=>{ e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g,""); $("err-track").classList.remove("show"); });
+$("trackDigits").addEventListener("input", e=>{ e.target.value = e.target.value.replace(/\D/g,"").slice(0,4); $("err-track").classList.remove("show"); });
+$("lookupBtn").addEventListener("click", performLookup);
+$("trackDigits").addEventListener("keydown", e=>{ if(e.key==="Enter") performLookup(); });
+$("trackCode").addEventListener("keydown", e=>{ if(e.key==="Enter") performLookup(); });
+
+function setLookupLock(ms){
+  lockUntil = Date.now()+ms;
+  const btn = $("lookupBtn"); btn.disabled = true;
+  $("lockNote").hidden = false;
+  clearInterval(lockTicker);
+  lockTicker = setInterval(()=>{
+    const r = Math.ceil((lockUntil-Date.now())/1000);
+    if(r<=0){ clearInterval(lockTicker); lockTicker=null; lockUntil=0; lookupFails=0; $("lockNote").hidden=true; btn.disabled=false; btn.innerHTML='<span>View Status</span>'; }
+    else{ $("lockNote").textContent = "Too many failed attempts. Please wait "+r+" seconds."; btn.innerHTML = '<span>View Status ('+r+')</span>'; }
+  }, 250);
+  $("lockNote").textContent = "Too many failed attempts. Please wait "+Math.ceil(ms/1000)+" seconds.";
+}
+
+async function performLookup(){
+  if(Date.now()<lockUntil) return;
+  const errEl = $("err-track"); errEl.classList.remove("show"); errEl.textContent="";
+
+  const code = normalizeTrackingCode($("trackCode").value);
+  const digits = $("trackDigits").value.trim();
+
+  if(!isValidTrackingCode(code)){ errEl.textContent="Enter a valid tracking code, for example ER-4F7K2."; errEl.classList.add("show"); $("trackCode").focus(); return; }
+  if(!/^\d{4}$/.test(digits)){ errEl.textContent="Enter exactly the last 4 digits of the phone number."; errEl.classList.add("show"); $("trackDigits").focus(); return; }
+
+  const btn = $("lookupBtn"); btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="border-color:rgba(255,255,255,.4);border-top-color:#fff"></span><span>Checking…</span>';
+
+  try{
+    const c = await ECS.cloud.getAlert(code);
+    const match = c && c.reporter && lastFour(c.reporter.phone) === digits;
+    if(!match){
+      lookupFails++;
+      btn.disabled = false; btn.innerHTML = '<span>View Status</span>';
+      errEl.textContent="We could not find this case. Check the code and digits."; errEl.classList.add("show");
+      if(lookupFails>=ECS.LOOKUP_MAX_FAILS) setLookupLock(ECS.LOOKUP_LOCK_MS);
+      return;
+    }
+    lookupFails = 0;
+    btn.disabled = false; btn.innerHTML = '<span>View Status</span>';
+    enterTrackingResult(code);
+  } catch(e){
+    console.error("[lookup] failed", e);
+    btn.disabled = false; btn.innerHTML = '<span>View Status</span>';
+    errEl.textContent="Lookup failed. Please check your connection and try again."; errEl.classList.add("show");
+  }
+}
+
+function enterTrackingResult(caseId){
+  verifiedCaseId = caseId;
+  $("trackLookup").hidden = true;
+  $("trackResult").hidden = false;
+  refreshTrackedView(true);
+  /* Real-time Firebase listener */
+  cloudUnsub = ECS.cloud.listenAlert(caseId, ()=>refreshTrackedView(false));
+  window.scrollTo({top:0,behavior:"auto"});
+}
+
+$("exitTrackingBtn").addEventListener("click", ()=>{
+  teardownTracking();
+  document.getElementById("trackCode").value="";
+  document.getElementById("trackDigits").value="";
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+
+/* Public VM (allow-listed) */
+function buildPublicViewModel(c){
+  if(!c) return null;
+  const displayName = (c.patient && c.patient.name && !c.patient.isUnknown) ? initialsFrom(c.patient.name)
+    : (c.patientName && !String(c.patientName).trim()==="" ? initialsFrom(c.patientName) : "");
+  const hist = Array.isArray(c.statusHistory) ? c.statusHistory
+    .filter(h => h && h.status)
+    .map(h => ({ status: canonicalStatus(h.status), at: h.at })) : [];
+  const canon = canonicalStatus(c.status);
+  if(!hist.length || hist[hist.length-1].status !== canon){
+    hist.push({ status: canon, at: c.updatedAt || c.createdAt });
+  }
+  return {
+    id: c.id,
+    status: canon,
+    createdAt: c.createdAt,
+    updatedAt: c.updatedAt || c.createdAt,
+    displayName,
+    ward: (c.publicInfo && c.publicInfo.ward) ? String(c.publicInfo.ward) : "",
+    transferHospital: (c.publicInfo && c.publicInfo.transferHospital) ? String(c.publicInfo.transferHospital) : "",
+    etaMinutes: (c.eta != null) ? Number(c.eta) : (c.etaDetail && typeof c.etaDetail.minutes==="number" ? c.etaDetail.minutes : null),
+    etaSetAt: (c.etaDetail && c.etaDetail.setAt) ? c.etaDetail.setAt : (c.eta && c.eta.setAt ? c.eta.setAt : null) || c.createdAt,
+    history: hist
+  };
+}
+
+function refreshTrackedView(silent){
+  if(!verifiedCaseId) return;
+  const c = ECS.storage.getCaseById(verifiedCaseId);
+  if(!c){ toast("This case could not be found.", "error", 3200); teardownTracking(); return; }
+  const vm = buildPublicViewModel(c); if(!vm) return;
+
+  $("rCode").textContent = vm.id;
+  $("rPatient").textContent = vm.displayName || "Unknown patient";
+
+  const pill = $("rStatusPill");
+  pill.textContent = ECS.STATUS_SHORT[vm.status] || vm.status;
+  pill.className = "status-pill" + (vm.status==="CANCELLED" ? " cancelled" : "");
+  if(vm.status==="PENDING"){
+    const dot = document.createElement("span"); dot.className="pulse"; pill.prepend(dot);
+  }
+
+  const wr = $("rWardRow");
+  if(vm.status==="ADMITTED" && vm.ward){ wr.hidden=false; $("rWard").textContent = vm.ward; } else wr.hidden=true;
+
+  const tr = $("rTransferRow");
+  if(vm.status==="ADMITTED" && vm.transferHospital){ tr.hidden=false; $("rTransfer").textContent = vm.transferHospital; } else tr.hidden=true;
+
+  const tl = $("rTimeline"); tl.innerHTML="";
+  vm.history.forEach((h,i)=>{
+    const li = document.createElement("li"); li.className = "tl-item";
+    if(i===vm.history.length-1) li.classList.add("current"); else li.classList.add("done");
+    const dot = document.createElement("span"); dot.className="tl-dot"; li.appendChild(dot);
+    const body = document.createElement("div"); body.className="tl-body";
+    const msg = document.createElement("div"); msg.className="tl-msg"; msg.textContent = ECS.STATUS_TEXT[h.status] || h.status; body.appendChild(msg);
+    const time = document.createElement("div"); time.className="tl-time"; time.textContent = fmtDateTime(h.at); body.appendChild(time);
+    li.appendChild(body); tl.appendChild(li);
+  });
+
+  renderEtaBox(vm);
+
+  $("updateEtaBtn").hidden = ECS.ETA_EDITABLE_STATUSES.indexOf(vm.status)===-1;
+  $("cancelAlertBtn").hidden = ECS.CANCELLABLE_STATUSES.indexOf(vm.status)===-1;
+
+  const cfg = ECS.storage.getConfig();
+  const num = (cfg.receptionNumber||"").replace(/[^\d+]/g,"");
+  if(num && num.length>=7){ $("callReceptionBtn").hidden=false; $("receptionMissing").hidden=true; $("callReceptionBtn").href = "tel:"+num; }
+  else { $("callReceptionBtn").hidden=true; $("receptionMissing").hidden=false; }
+
+  $("lastUpdated").textContent = "Last updated " + fmtClock(vm.updatedAt);
+
+  if(!silent && lastRenderedStatus && lastRenderedStatus !== vm.status){
+    toast("Status updated: " + (ECS.STATUS_SHORT[vm.status]||vm.status), null, 3600);
+    if(navigator.vibrate){ try{ navigator.vibrate(120); }catch(e){} }
+  }
+  lastRenderedStatus = vm.status;
+}
+
+function renderEtaBox(vm){
+  const wrap = $("etaBoxWrap"); wrap.innerHTML=""; clearInterval(countdownTimer); countdownTimer=null;
+  if(vm.status !== "PENDING") return;
+  if(vm.etaMinutes===null || !vm.etaSetAt) return;
+  const target = new Date(vm.etaSetAt).getTime() + vm.etaMinutes*60000;
+  const box = document.createElement("div"); box.className="eta-box";
+  const cap = document.createElement("div"); cap.className="eta-cap"; cap.textContent = "Estimated arrival in";
+  const num = document.createElement("div"); num.className="eta-num";
+  box.appendChild(cap); box.appendChild(num); wrap.appendChild(box);
+  function tick(){
+    const rem = target - Date.now();
+    if(rem<=0){ box.classList.add("eta-overdue"); num.textContent = "Taking longer than expected. Call the hospital if you need help."; return; }
+    const sec = Math.floor(rem/1000); const mm = Math.floor(sec/60); const ss = sec%60;
+    num.textContent = (mm>0? mm+" min ":"") + pad2(ss) + " s";
+  }
+  tick(); countdownTimer = setInterval(tick, 1000);
+}
+
+/* Update ETA */
+$("updateEtaBtn").addEventListener("click", ()=>{
+  if(!verifiedCaseId) return;
+  const c = ECS.storage.getCaseById(verifiedCaseId);
+  if(!c){ toast("This case could not be found.","error"); return; }
+  if(ECS.ETA_EDITABLE_STATUSES.indexOf(canonicalStatus(c.status))===-1){ toast("ETA can only be updated while the case is incoming.","error",3400); return; }
+
+  const content = document.createElement("div");
+  const row = document.createElement("div"); row.className = "eta-row";
+  [5,10,20,30].forEach(m=>{
+    const b = document.createElement("button"); b.type="button"; b.className="eta-btn"; b.textContent = m+" min";
+    b.addEventListener("click", ()=>{ row.querySelectorAll(".eta-btn").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); customInput.value=""; });
+    row.appendChild(b);
+  });
+  const cw = document.createElement("div"); cw.className="field"; cw.style.marginTop="12px";
+  const lbl = document.createElement("label"); lbl.className="lbl"; lbl.textContent = "Estimated minutes";
+  const customInput = document.createElement("input"); customInput.type="number"; customInput.className="ltr"; customInput.inputMode="numeric"; customInput.min=String(ECS.ETA_MIN); customInput.max=String(ECS.ETA_MAX); customInput.placeholder="15";
+  customInput.addEventListener("input", ()=>{ row.querySelectorAll(".eta-btn").forEach(x=>x.setAttribute("aria-pressed","false")); });
+  cw.appendChild(lbl); cw.appendChild(customInput);
+  const errP = document.createElement("p"); errP.className="err"; errP.style.marginTop="8px";
+  content.appendChild(row); content.appendChild(cw); content.appendChild(errP);
+
+  openModal({
+    title:"Update ETA",
+    content: content,
+    actions:[
+      { label:"Save ETA", variant:"btn-primary", close:false, onClick: async ()=>{
+          let minutes = null;
+          const pressed = row.querySelector(".eta-btn[aria-pressed='true']");
+          if(pressed) minutes = parseInt(pressed.textContent,10);
+          else if(customInput.value.trim()!=="") minutes = parseInt(customInput.value,10);
+          if(minutes===null || !Number.isInteger(minutes) || minutes<ECS.ETA_MIN || minutes>ECS.ETA_MAX){ errP.textContent="Enter a valid number of minutes."; errP.classList.add("show"); return; }
+          if(ECS.ETA_EDITABLE_STATUSES.indexOf(canonicalStatus(c.status))===-1){ closeModal(); toast("ETA can no longer be updated.","error",3400); refreshTrackedView(true); return; }
+          const now = nowIso();
+          const newHistory = Array.isArray(c.statusHistory) ? c.statusHistory.slice() : [];
+          await ECS.cloud.updateAlert(verifiedCaseId, { eta: minutes, etaDetail: { minutes, setAt: now }, statusHistory: newHistory });
+          closeModal(); toast("ETA updated."); refreshTrackedView(true);
+        } },
+      { label:"Cancel", variant:"btn-outline" }
+    ]
+  });
+});
+
+/* Cancel alert */
+$("cancelAlertBtn").addEventListener("click", ()=>{
+  if(!verifiedCaseId) return;
+  const c = ECS.storage.getCaseById(verifiedCaseId);
+  if(!c){ toast("This case could not be found.","error"); return; }
+  if(ECS.CANCELLABLE_STATUSES.indexOf(canonicalStatus(c.status))===-1){ toast("Please contact hospital reception.","error",3600); return; }
+
+  openModal({
+    title:"Cancel this alert?",
+    body:"Are you sure you want to cancel this alert?",
+    dismissible:false,
+    actions:[
+      { label:"Yes, Cancel Alert", variant:"btn-danger", onClick: async ()=>{
+          if(ECS.CANCELLABLE_STATUSES.indexOf(canonicalStatus(c.status))===-1){ toast("The hospital already updated this case.","error",4200); refreshTrackedView(true); return; }
+          const hist = Array.isArray(c.statusHistory) ? c.statusHistory.slice() : [];
+          hist.push({ status:"CANCELLED", at: nowIso(), by:"patient-site" });
+          await ECS.cloud.updateAlert(verifiedCaseId, { status:"CANCELLED", statusHistory: hist });
+          toast("Alert cancelled."); refreshTrackedView(true);
+        } },
+      { label:"Keep Alert", variant:"btn-outline" }
+    ]
+  });
+});
+
+/* ================================================================
+   INIT
+   ================================================================ */
+function init(){
+  /* Firebase first */
+  ECS.cloud.init();
+
+  buildCategoryGrid(); buildConsciousnessGrid(); updateNotesCounter();
+
+  /* Re-render confirms when cache changes */
+  window.addEventListener("storage", e=>{
+    if(!e.key) return;
+    if(e.key===ECS.KEYS.cases){ if(verifiedCaseId) refreshTrackedView(false); if(currentConfirmCode) renderConfirmNote(currentConfirmCode); }
+  });
+
+  if(!ECS.storage.isAvailable()){
+    setTimeout(()=>toast("Browser storage is unavailable. Data cannot be saved on this device.","error",5200), 700);
+  }
+
+  route();
+}
+document.addEventListener("DOMContentLoaded", init);
+if(document.readyState==="interactive"||document.readyState==="complete") init();
+</script>
+</body>
+</html>
