@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>Civil Hospital Khairpur — Admin Portal</title>
+<link rel="icon" type="image/jpg" href="logo.jpg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --primary:#5C7057;--primary-dark:#3F4E3B;--secondary:#89A482;--border:#ACC5A6;--card:#D1EDD3;
+  --danger:#B3261E;--danger-dark:#8C1D17;--warn:#C77E29;--warn-dark:#A5651A;--success:#4E7C4A;
+  --text:#1F2A1D;--muted:#5A6B56;--bg:#F7FAF7;--surface:#FFFFFF;--soft:#E8F0E8;
+  --gold:#B8860B;--gold-dark:#8B6508;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{width:100vw;height:100vh;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans',Arial,sans-serif;background:url('background4.jpg') center center / cover no-repeat fixed;display:flex;user-select:none;color:var(--text);}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+input,select,textarea{font-family:inherit;}
+
+/* ============ AUTH GATE ============ */
+.auth-gate{position:fixed;inset:0;z-index:5000;background:url('background4.jpg') center center / cover no-repeat fixed;display:none;align-items:center;justify-content:center;padding:20px;}
+.auth-gate.show{display:flex;}
+.auth-gate::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(31,42,29,.72) 0%,rgba(63,78,59,.55) 50%,rgba(31,42,29,.78) 100%);}
+.auth-gate-card{position:relative;z-index:1;background:rgba(255,255,255,.14);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);border:1.5px solid rgba(255,255,255,.35);border-radius:24px;box-shadow:0 22px 60px rgba(0,0,0,.45);padding:36px 32px;text-align:center;max-width:420px;width:100%;color:#fff;animation:cardIn .6s cubic-bezier(.22,1,.36,1);}
+@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+.auth-gate-logo{width:96px;height:96px;margin:0 auto 16px;border-radius:50%;background:rgba(255,255,255,.22);border:1.5px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;}
+.auth-gate-logo img{width:78px;height:78px;object-fit:contain;}
+.auth-gate h1{font-size:19px;font-weight:800;letter-spacing:.4px;line-height:1.3;text-shadow:0 2px 14px rgba(0,0,0,.55);}
+.auth-gate h2{font-size:12px;font-weight:800;color:#F5E6B8;letter-spacing:2.5px;text-transform:uppercase;margin-top:8px;text-shadow:0 1px 8px rgba(0,0,0,.6);}
+.auth-gate-status{display:inline-flex;align-items:center;gap:9px;padding:11px 18px;background:rgba(255,255,255,.18);border-radius:30px;font-size:13px;font-weight:700;margin:22px 0 6px;backdrop-filter:blur(6px);}
+.auth-gate-status i{color:#D1EDD3;}
+.auth-gate-actions{margin-top:16px;display:flex;flex-direction:column;gap:10px;}
+.auth-gate-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;border-radius:12px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;font-size:13.5px;text-decoration:none;box-shadow:0 12px 28px rgba(139,101,8,.4);transition:.2s;border:none;cursor:pointer;font-family:inherit;}
+.auth-gate-btn:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(139,101,8,.5);}
+.auth-gate-note{margin-top:20px;padding-top:18px;border-top:1px solid rgba(255,255,255,.15);font-size:11.5px;color:rgba(255,255,255,.78);font-weight:600;line-height:1.7;}
+.auth-gate-note i{color:#D1EDD3;margin-right:6px;}
+.auth-gate-note strong{color:#F5E6B8;}
+
+/* ============ TOP-LEFT LOGO ============ */
+.brand-logo-tl{position:fixed;top:0;left:0;z-index:160;line-height:0;pointer-events:none;}
+.brand-logo-tl img{width:86px;height:86px;object-fit:contain;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45));}
+.brand-logo-tl .logo-fallback-tl{width:86px;height:86px;background:var(--primary);color:#fff;display:none;align-items:center;justify-content:center;font-weight:900;font-size:26px;letter-spacing:1px;}
+
+.left-section{width:38%;height:100vh;position:relative;z-index:1;}
+.right-section{width:62%;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;padding:20px;overflow-y:auto;}
+.right-section::-webkit-scrollbar{width:5px;}
+.right-section::-webkit-scrollbar-thumb{background:rgba(209,237,211,.5);border-radius:5px;}
+.header-info{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;color:#fff;margin-bottom:18px;gap:14px;text-align:center;flex-shrink:0;}
+.header-text{text-align:center;}
+.header-text h1{font-size:22px;font-weight:800;letter-spacing:1px;line-height:1.25;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.7);}
+.header-text h1 .accent{color:var(--card);}
+.header-text .subtitle{font-size:11.5px;letter-spacing:3px;color:#fff;display:block;margin-top:5px;text-shadow:0 0 10px rgba(0,0,0,.9);font-weight:700;}
+.header-text .branch-info{font-size:13px;color:var(--card);margin-top:6px;font-weight:700;letter-spacing:.5px;text-shadow:0 2px 6px rgba(0,0,0,.85);}
+.admin-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(184,134,11,.9);color:#fff;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.5px;margin-top:8px;text-transform:uppercase;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.admin-badge i{font-size:11px;}
+
+/* ============ CIRCLE MENU ============ */
+.icon-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 24px;width:100%;max-width:440px;margin-top:6px;justify-items:center;}
+.circle-item{position:relative;width:104px;height:104px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .25s, box-shadow .25s, border-color .25s;box-shadow:0 6px 20px rgba(0,0,0,.35);border:3px solid rgba(255,255,255,.9);flex-shrink:0;}
+.circle-item:hover{transform:translateY(-6px) scale(1.08);box-shadow:0 12px 28px rgba(92,112,87,.55);border-color:var(--card);}
+.circle-item:active{transform:scale(.95);}
+.circle-item.admin-only{border-color:var(--gold);}
+.circle-item .badge-cnt{position:absolute;top:2px;right:2px;background:var(--danger);color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:10px;min-width:20px;text-align:center;border:2px solid #fff;animation:pulse 1.6s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
+.circle-content{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:8px;text-align:center;}
+.circle-content .menu-icon{width:44px;height:44px;object-fit:contain;margin-bottom:4px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.12));}
+.circle-content i.fallback-icon{font-size:26px;color:var(--primary);margin-bottom:4px;}
+.circle-item.admin-only .circle-content i.fallback-icon{color:var(--gold);}
+.circle-content span{font-size:9.5px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;line-height:1.15;}
+.circle-item.admin-only .circle-content span{color:var(--gold-dark);}
+
+.top-bar{position:fixed;top:0;right:0;padding:12px 20px;display:flex;justify-content:flex-end;align-items:center;z-index:150;pointer-events:none;gap:10px;}
+.top-bar > *{pointer-events:auto;}
+.top-icon-btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.95);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:.15s;cursor:pointer;}
+.top-icon-btn:hover{transform:scale(1.08);background:#fff;}
+.top-icon-btn.gold{color:var(--gold);}
+.top-icon-btn .badge-cnt{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:10px;min-width:20px;text-align:center;border:2px solid #fff;}
+.footer{position:fixed;bottom:0;left:0;width:100%;color:#fff;padding:7px 20px;font-size:11.5px;letter-spacing:.5px;z-index:100;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,transparent,rgba(31,42,29,.75));text-shadow:0 1px 4px rgba(0,0,0,.9);}
+.footer .brand{color:var(--card);font-weight:700;}
+.footer .admin-tag{color:var(--gold);font-weight:800;letter-spacing:1px;text-transform:uppercase;}
+
+.db-status{position:fixed;bottom:44px;left:16px;z-index:120;padding:4px 11px;border-radius:20px;font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.db-status.local{background:#FEF3C7;color:#92400E;}
+.db-status.firebase{background:#D1FAE5;color:#065F46;}
+.db-status::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+.section{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);display:none;z-index:200;}
+.section.active{display:block;animation:secIn .22s ease-out;}
+@keyframes secIn{from{opacity:0;transform:scale(.98);}to{opacity:1;transform:scale(1);}}
+.section-shell{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.module-header{display:flex;align-items:center;gap:14px;padding:13px 20px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);border-bottom:3px solid var(--card);flex-shrink:0;box-shadow:0 2px 12px rgba(31,42,29,.22);position:relative;z-index:10;}
+.module-header.gold{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-dark) 100%);border-bottom-color:#F5E6B8;}
+.back-btn{background:rgba(255,255,255,.16);border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .22s;flex-shrink:0;}
+.back-btn:hover{transform:translateX(-3px) scale(1.06);background:rgba(255,255,255,.28);}
+.back-btn i{position:relative;z-index:1;}
+.module-title{font-size:18px;font-weight:800;letter-spacing:.5px;flex:1;text-align:center;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:42px;}
+.module-title i{color:var(--card);margin-right:8px;}
+.module-header.gold .module-title i{color:#F5E6B8;}
+.content{flex:1;padding:18px;overflow-y:auto;background:var(--bg);}
+.content::-webkit-scrollbar{width:8px;}
+.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px;}
+.card{background:var(--surface);border-radius:14px;border:1px solid var(--border);box-shadow:0 2px 10px rgba(31,42,29,.06);padding:18px;margin-bottom:16px;}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.card-head h3{font-size:15px;font-weight:800;color:var(--primary);display:flex;align-items:center;gap:9px;}
+.card-head h3 i{color:var(--secondary);}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;font-weight:700;font-size:13px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);transition:all .15s;white-space:nowrap;line-height:1;cursor:pointer;}
+.btn:hover{background:var(--card);border-color:var(--secondary);transform:translateY(-1px);box-shadow:0 3px 10px rgba(31,42,29,.08);}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+.btn-primary:hover{background:var(--primary-dark);border-color:var(--primary-dark);}
+.btn-gold{background:var(--gold);color:#fff;border-color:var(--gold);}
+.btn-gold:hover{background:var(--gold-dark);border-color:var(--gold-dark);}
+.btn-success{background:var(--success);color:#fff;border-color:var(--success);}
+.btn-danger{background:var(--danger);color:#fff;border-color:var(--danger);}
+.btn-danger:hover{background:var(--danger-dark);}
+.btn-warn{background:var(--warn);color:#fff;border-color:var(--warn);}
+.btn-warn:hover{background:var(--warn-dark);}
+.btn-sm{padding:6px 11px;font-size:11.5px;border-radius:8px;}
+.btn-xs{padding:4px 8px;font-size:10.5px;border-radius:6px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:18px;}
+.stat{background:var(--surface);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;border-left:5px solid var(--primary);box-shadow:0 2px 10px rgba(31,42,29,.06);transition:.2s;}
+.stat:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(31,42,29,.12);}
+.stat.green{border-left-color:var(--secondary);}
+.stat.red{border-left-color:var(--danger);}
+.stat.amber{border-left-color:var(--warn);}
+.stat.gold{border-left-color:var(--gold);}
+.stat-icon{width:48px;height:48px;border-radius:12px;background:var(--card);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.stat.red .stat-icon{background:rgba(179,38,30,.1);color:var(--danger);}
+.stat.amber .stat-icon{background:rgba(199,126,41,.14);color:var(--warn-dark);}
+.stat.gold .stat-icon{background:rgba(184,134,11,.14);color:var(--gold-dark);}
+.stat-val{font-size:21px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;}
+.stat-lbl{font-size:10.5px;color:var(--muted);font-weight:700;margin-top:3px;text-transform:uppercase;letter-spacing:.4px;}
+
+/* CHARTS */
+.chart-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:8px;}
+.chart-box{background:var(--surface);border-radius:14px;border:1px solid var(--border);box-shadow:0 2px 10px rgba(31,42,29,.06);padding:16px 18px;display:flex;flex-direction:column;position:relative;min-height:280px;}
+.chart-box .chart-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.chart-box .chart-head h3{font-size:12.5px;font-weight:800;color:var(--primary);letter-spacing:.4px;text-transform:uppercase;display:flex;align-items:center;gap:8px;}
+.chart-box .chart-head h3 i{color:var(--secondary);font-size:14px;}
+.chart-box .chart-head .chart-total{font-size:22px;font-weight:900;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;}
+.chart-box .chart-head .chart-total small{display:block;font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+.chart-wrap{flex:1;position:relative;min-height:170px;}
+.chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important;}
+.section-divider{display:flex;align-items:center;gap:14px;margin:22px 0 14px;color:var(--muted);font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);}
+.section-divider span{white-space:nowrap;padding:0 4px;}
+.section-divider i{color:var(--secondary);font-size:11px;}
+
+.tw{overflow:auto;border-radius:12px;border:1px solid var(--border);background:var(--surface);max-height:calc(100vh - 340px);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:var(--primary);color:#fff;padding:11px 13px;text-align:left;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;position:sticky;top:0;z-index:2;border-bottom:2px solid var(--primary-dark);}
+tbody td{padding:11px 13px;border-bottom:1px solid var(--soft);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--bg);}
+td.mono{font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:var(--primary);}
+td.actions{text-align:center;white-space:nowrap;}
+td.actions .btn{margin:0 2px;}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;}
+.b-green{background:var(--card);color:var(--primary-dark);}
+.b-red{background:rgba(179,38,30,.12);color:var(--danger);}
+.b-amber{background:rgba(199,126,41,.14);color:var(--warn-dark);}
+.b-blue{background:var(--soft);color:var(--primary);}
+.b-gray{background:#EDEFEC;color:var(--muted);}
+.b-gold{background:rgba(184,134,11,.15);color:var(--gold-dark);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
+.fg label .req{color:var(--danger);margin-left:2px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13.5px;outline:none;background:var(--surface);color:var(--text);transition:.15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--secondary);box-shadow:0 0 0 3px rgba(137,164,130,.28);}
+.fg input[readonly]{background:#F1F5F1;color:var(--muted);cursor:not-allowed;}
+.fg textarea{min-height:72px;resize:vertical;font-family:inherit;}
+.filter-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.filter-bar input,.filter-bar select{padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;outline:none;background:var(--surface);transition:.15s;min-width:150px;}
+.filter-bar input{flex:1;min-width:180px;}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--secondary);box-shadow:0 0 0 3px rgba(137,164,130,.28);}
+.empty{padding:50px 20px;text-align:center;color:var(--muted);}
+.empty i{font-size:42px;opacity:.35;display:block;margin-bottom:12px;color:var(--secondary);}
+.empty .t{font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
+.empty .d{font-size:12.5px;}
+.modal-ov{position:fixed;inset:0;background:rgba(31,42,29,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
+.modal-ov.active{opacity:1;visibility:visible;}
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:600px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;transform:translateY(15px) scale(.97);transition:transform .22s;box-shadow:0 24px 60px rgba(31,42,29,.4);}
+.modal-ov.active .modal{transform:translateY(0) scale(1);}
+.modal.wide{max-width:900px;}
+.modal.xwide{max-width:1100px;}
+.modal-hd{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;}
+.modal-hd.gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));}
+.modal-hd h3{font-size:16px;font-weight:800;}
+.modal-hd .close{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.18);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;transition:.15s;cursor:pointer;}
+.modal-hd .close:hover{background:rgba(255,255,255,.32);transform:rotate(90deg);}
+.modal-bd{flex:1;overflow-y:auto;padding:20px;background:#F3F7F3;}
+.modal-ft{padding:13px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;background:var(--surface);flex-shrink:0;flex-wrap:wrap;}
+#toastRoot{position:fixed;top:80px;right:18px;z-index:2000;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+.toast{background:var(--surface);border-radius:12px;padding:13px 18px;min-width:280px;max-width:400px;box-shadow:0 12px 30px rgba(31,42,29,.18);border-left:4px solid var(--primary);display:flex;align-items:center;gap:11px;font-size:13px;font-weight:600;color:var(--text);animation:slideIn .28s;pointer-events:auto;}
+.toast.success{border-left-color:var(--success);}
+.toast.error{border-left-color:var(--danger);}
+.toast.warn{border-left-color:var(--warn);}
+.toast.gold{border-left-color:var(--gold);}
+.toast i{font-size:17px;flex-shrink:0;}
+.toast.success i{color:var(--success);}
+.toast.error i{color:var(--danger);}
+.toast.warn i{color:var(--warn);}
+.toast.gold i{color:var(--gold);}
+.toast.info i{color:var(--primary);}
+@keyframes slideIn{from{transform:translateX(120%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes slideOut{to{transform:translateX(120%);opacity:0;}}
+.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:13px;}
+.pf{background:var(--bg);border:1px solid var(--soft);border-radius:11px;padding:11px 13px;}
+.pf-lbl{font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.pf-val{font-size:13px;font-weight:700;word-break:break-word;min-height:18px;}
+.doc-card{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;}
+.doc{padding:14px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);transition:.15s;position:relative;}
+.doc:hover{border-color:var(--primary);box-shadow:0 8px 22px rgba(92,112,87,.14);transform:translateY(-3px);}
+.doc-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;margin-bottom:10px;}
+.doc-name{font-weight:800;font-size:13.5px;margin-bottom:3px;}
+.doc-spec{font-size:11.5px;color:var(--primary);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px;}
+.doc-meta{font-size:11.5px;color:var(--muted);display:flex;justify-content:space-between;margin-top:6px;}
+.doc-actions{display:flex;gap:6px;margin-top:12px;padding-top:10px;border-top:1px solid var(--soft);}
+.doc-actions .btn{flex:1;justify-content:center;}
+.bed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:9px;}
+.bed-tile{padding:10px 8px;border-radius:11px;text-align:center;font-size:11px;font-weight:800;border:1.5px solid;transition:.15s;position:relative;cursor:pointer;}
+.bed-tile .bn{font-size:14px;font-weight:900;font-family:'Courier New',monospace;letter-spacing:.5px;margin-bottom:3px;}
+.bed-tile .wt{font-size:9.5px;opacity:.85;font-weight:700;letter-spacing:.3px;}
+.bed-tile.free{background:var(--card);border-color:var(--primary);color:var(--primary-dark);}
+.bed-tile.free:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(78,124,74,.28);}
+.bed-tile.occ{background:rgba(179,38,30,.08);border-color:var(--danger);color:var(--danger-dark);opacity:.85;}
+.bed-tile.res{background:rgba(199,126,41,.1);border-color:var(--warn);color:var(--warn-dark);opacity:.9;}
+.bed-tile.maint{background:#EEF1EE;border-color:var(--muted);color:var(--muted);opacity:.75;}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:12px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.legend span::before{content:'';width:11px;height:11px;border-radius:3px;background:currentColor;opacity:.7;}
+.legend .lg-free{color:var(--primary);}
+.legend .lg-occ{color:var(--danger);}
+.legend .lg-res{color:var(--warn);}
+.legend .lg-maint{color:var(--muted);}
+.alert-cat{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;background:rgba(179,38,30,.12);color:var(--danger);font-size:11px;font-weight:800;text-transform:uppercase;}
+.alert-cat.cardiac{background:rgba(179,38,30,.12);color:var(--danger);}
+.alert-cat.stroke{background:rgba(139,92,246,.14);color:#7c3aed;}
+.alert-cat.trauma{background:rgba(199,126,41,.16);color:var(--warn-dark);}
+.alert-cat.accident{background:rgba(199,126,41,.16);color:var(--warn-dark);}
+.alert-cat.respiratory{background:var(--soft);color:var(--primary);}
+.alert-cat.pediatric{background:var(--card);color:var(--primary-dark);}
+.alert-cat.obstetric{background:rgba(236,72,153,.13);color:#DB2777;}
+.alert-cat.general{background:#EDEFEC;color:var(--muted);}
+.recent{max-height:400px;overflow-y:auto;}
+.recent .item{padding:10px 0;border-bottom:1px solid var(--soft);font-size:12.5px;display:flex;gap:12px;align-items:flex-start;}
+.recent .item:last-child{border-bottom:none;}
+.recent .item .t{font-family:'Courier New',monospace;font-weight:800;color:var(--primary);font-size:11.5px;flex-shrink:0;min-width:60px;}
+.confirm-box{padding:16px;background:#FDF3E7;border:1px solid #E8C79A;border-radius:12px;color:#8A5A16;font-size:13.5px;font-weight:600;margin-bottom:14px;line-height:1.6;}
+.confirm-box i{font-size:20px;margin-right:8px;}
+@media (max-width:900px){
+  .left-section{display:none;}
+  .right-section{width:100%;padding:100px 12px 60px;}
+  .header-text h1{font-size:18px;}
+  .header-text .subtitle{font-size:10px;letter-spacing:2px;}
+  .icon-grid{gap:14px 16px;max-width:340px;}
+  .circle-item{width:86px;height:86px;}
+  .circle-content .menu-icon{width:36px;height:36px;}
+  .circle-content span{font-size:8.5px;}
+  .top-icon-btn{width:38px;height:38px;font-size:14px;}
+  .brand-logo-tl img{width:70px;height:70px;}
+  .form-grid,.form-grid-3{grid-template-columns:1fr;}
+  .chart-row{grid-template-columns:1fr;}
+}
+@media (max-width:480px){
+  .icon-grid{max-width:300px;gap:12px 14px;}
+  .circle-item{width:78px;height:78px;}
+  .circle-content .menu-icon{width:32px;height:32px;}
+  .circle-content span{font-size:7.5px;letter-spacing:0;}
+  .module-title{font-size:15px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     AUTH GATE — shown when no valid session
+     ============================================================ -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-gate-card">
+    <div class="auth-gate-logo">
+      <img src="logo.jpg" alt="CHK" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\'color:#fff;font-weight:900;font-size:26px;\'>CHK</div>';">
+    </div>
+    <h1>Civil Hospital Khairpur</h1>
+    <h2>Admin Control Center</h2>
+    <div class="auth-gate-status" id="authGateStatus">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span id="authGateStatusText">Verifying session…</span>
+    </div>
+    <div class="auth-gate-actions" id="authGateActions" style="display:none;">
+      <button class="auth-gate-btn" onclick="window.location.href='https://emergo.site.je/?i=1'">
+        <i class="fas fa-sign-in-alt"></i> Go to Login Portal
+      </button>
+    </div>
+    <div class="auth-gate-note">
+      <i class="fas fa-shield-alt"></i>
+      Please login from the main portal as <strong>Hospital Administration</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MAIN ADMIN APP
+     ============================================================ -->
+<div id="adminApp" style="display:none;width:100%;height:100%;">
+
+<div class="brand-logo-tl">
+  <img src="logo.jpg" alt="Civil Hospital Khairpur" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="logo-fallback-tl">CHK</div>
+</div>
+
+<div class="top-bar">
+  <button class="top-icon-btn gold" onclick="App.exportAllData()" title="Export Data">
+    <i class="fas fa-download"></i>
+  </button>
+  <button class="top-icon-btn" onclick="App.showNotifications()" title="Notifications">
+    <i class="fas fa-bell"></i>
+    <span class="badge-cnt" id="notifBadge" style="display:none;">0</span>
+  </button>
+  <button class="top-icon-btn" onclick="App.logout()" title="Logout">
+    <i class="fas fa-sign-out-alt"></i>
+  </button>
+</div>
+
+<div class="left-section"></div>
+
+<div class="right-section" id="mainDashboard">
+  <div class="header-info">
+    <div class="header-text">
+      <h1>Civil Hospital Khairpur<br><span class="accent">Admin Control Center</span></h1>
+      <span class="subtitle">SUPER ADMIN &amp; MANAGEMENT</span>
+      <div class="branch-info" id="activeBranchInfo">Civil Hospital Khairpur · Khairpur, Sindh</div>
+      <div class="admin-badge"><i class="fas fa-crown"></i> Super Admin Access</div>
+    </div>
+  </div>
+  <div class="icon-grid" id="iconGrid"></div>
+</div>
+
+<div class="footer">
+  <span>Civil Hospital Khairpur &middot; <span class="admin-tag">Admin Panel</span></span>
+  <span class="brand" id="footerDateTime"></span>
+</div>
+
+<div class="db-status" id="dbStatus">
+  <span id="dbStatusText">Connecting…</span>
+</div>
+
+<!-- SECTIONS -->
+<div id="section-dashboard" class="section"><div class="section-shell"><div class="module-header"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</div></div><div class="content" id="content-dashboard"></div></div></div>
+<div id="section-doctors" class="section"><div class="section-shell"><div class="module-header gold"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-user-md"></i> Doctors Management</div></div><div class="content" id="content-doctors"></div></div></div>
+<div id="section-ambulances" class="section"><div class="section-shell"><div class="module-header gold"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-ambulance"></i> Ambulance Fleet Management</div></div><div class="content" id="content-ambulances"></div></div></div>
+<div id="section-beds" class="section"><div class="section-shell"><div class="module-header gold"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-bed"></i> Beds Management</div></div><div class="content" id="content-beds"></div></div></div>
+<div id="section-hospital" class="section"><div class="section-shell"><div class="module-header gold"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-hospital"></i> Hospital Settings</div></div><div class="content" id="content-hospital"></div></div></div>
+<div id="section-alerts" class="section"><div class="section-shell"><div class="module-header"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-satellite-dish"></i> Alerts &amp; Cases</div></div><div class="content" id="content-alerts"></div></div></div>
+<div id="section-patients" class="section"><div class="section-shell"><div class="module-header"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-hospital-user"></i> Patient Records</div></div><div class="content" id="content-patients"></div></div></div>
+<div id="section-activity" class="section"><div class="section-shell"><div class="module-header"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-history"></i> Activity Log</div></div><div class="content" id="content-activity"></div></div></div>
+<div id="section-data" class="section"><div class="section-shell"><div class="module-header gold"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-database"></i> Data Management</div></div><div class="content" id="content-data"></div></div></div>
+
+<div class="modal-ov" id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+</div><!-- /adminApp -->
+
+<script>
+/* ============================================================
+   FIREBASE CONFIG — SAME AS STAFF SIDE
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAVbIXp5qgq6TqHExaOsIWL5QAHgJGZnElA".replace('qgq6','qgq6'),
+  authDomain: "hospitalsystem-79d21.firebaseapp.com",
+  databaseURL: "https://hospitalsystem-79d21-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "hospitalsystem-79d21",
+  storageBucket: "hospitalsystem-79d21.firebasestorage.app",
+  messagingSenderId: "612665716882",
+  appId: "1:612665716882:web:b5d9d2bbca989a9a0bf64b"
+};
+/* normalize the apiKey (typo-proof) */
+FIREBASE_CONFIG.apiKey = "AIzaSyAVbIXp5qg6TqHExaOsIWL5QAHgJGZnElA";
+
+/* URLs */
+const STAFF_PORTAL_URL = 'https://emergo.site.je/?i=1';
+const ADMIN_PORTAL_URL = 'https://adminemergo.site.je/?i=1';
+
+/* ============================================================
+   INITIALIZE FIREBASE (eagerly, before any UI)
+   ============================================================ */
+let FIREBASE_READY = false;
+try{
+  if(window.firebase && firebase.initializeApp){
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    FIREBASE_READY = true;
+    console.log('[Firebase] initialized');
+  } else {
+    console.warn('[Firebase] SDK not loaded');
+  }
+}catch(e){
+  console.error('[Firebase] init failed', e);
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
+const pad = n => String(n).padStart(2,'0');
+const fDate = s => { if(!s) return '—'; const d=new Date(s); return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); };
+const fTime = s => { if(!s) return ''; const d=new Date(s); return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:true}); };
+const fDT = s => fDate(s)+' '+fTime(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = prefix => prefix+'-'+Date.now().toString(36).toUpperCase().slice(-6)+Math.random().toString(36).slice(2,4).toUpperCase();
+const minutesFrom = s => Math.round((Date.now() - new Date(s).getTime())/60000);
+
+/* ============================================================
+   SOUND
+   ============================================================ */
+let AC=null;
+const initAudio = () => { if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } };
+const tone = (f1,f2,dur,vol=0.12) => {
+  initAudio(); if(!AC) return;
+  try{
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.connect(g); g.connect(AC.destination); o.type='sine';
+    o.frequency.setValueAtTime(f1,AC.currentTime);
+    o.frequency.exponentialRampToValueAtTime(f2,AC.currentTime+dur);
+    g.gain.setValueAtTime(vol,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+dur);
+    o.start(); o.stop(AC.currentTime+dur);
+  }catch(e){}
+};
+const playClick = () => tone(800,400,.07,.15);
+const sSuccess = () => { tone(660,880,.11,.15); setTimeout(()=>tone(880,1100,.09,.15),90); };
+const sError = () => tone(300,200,.14,.18);
+const sWarn = () => tone(500,400,.12,.15);
+const sGold = () => { tone(600,900,.13,.15); setTimeout(()=>tone(900,1300,.11,.15),110); };
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+const Toast = {
+  show(msg, type='info', duration=3000){
+    const root = $('#toastRoot'); if(!root) return;
+    const el = document.createElement('div');
+    el.className = 'toast '+type;
+    const icons = {success:'fa-check-circle',error:'fa-times-circle',warn:'fa-exclamation-triangle',gold:'fa-crown',info:'fa-info-circle'};
+    el.innerHTML = `<i class="fas ${icons[type]}"></i><span>${esc(msg)}</span>`;
+    root.appendChild(el);
+    if(type==='success') sSuccess(); else if(type==='error') sError(); else if(type==='warn') sWarn(); else if(type==='gold') sGold();
+    setTimeout(()=>{ el.style.animation='slideOut .25s forwards'; setTimeout(()=>el.remove(),250); }, duration);
+  }
+};
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+const Modal = {
+  _esc:null, _onClose:null,
+  open({title, body, footer, wide=false, xwide=false, gold=false, onClose}){
+    this.close(true);
+    const root = $('#modalRoot');
+    root.innerHTML = `
+      <div class="modal ${xwide?'xwide':wide?'wide':''}">
+        <div class="modal-hd ${gold?'gold':''}"><h3>${esc(title||'')}</h3><button class="close" data-close><i class="fas fa-times"></i></button></div>
+        <div class="modal-bd"></div>
+        ${footer?'<div class="modal-ft"></div>':''}
+      </div>`;
+    const bd = root.querySelector('.modal-bd');
+    if(typeof body==='string') bd.innerHTML = body; else if(body instanceof Node) bd.appendChild(body);
+    if(footer){
+      const ft = root.querySelector('.modal-ft');
+      if(Array.isArray(footer)) footer.forEach(x=>ft.appendChild(x));
+      else if(typeof footer==='string') ft.innerHTML = footer;
+      else ft.appendChild(footer);
+    }
+    root.classList.add('active');
+    root.querySelector('[data-close]').onclick = () => this.close();
+    root.onclick = e => { if(e.target===root) this.close(); };
+    this._esc = e => { if(e.key==='Escape') this.close(); };
+    document.addEventListener('keydown', this._esc);
+    this._onClose = onClose;
+  },
+  close(silent){
+    const root = $('#modalRoot');
+    if(!root.classList.contains('active')) return;
+    root.classList.remove('active');
+    if(this._esc) document.removeEventListener('keydown', this._esc);
+    if(!silent && typeof this._onClose==='function') this._onClose();
+    setTimeout(()=>{ if(!root.classList.contains('active')) root.innerHTML=''; }, 220);
+  }
+};
+
+/* ============================================================
+   DATASTORE — FIREBASE REALTIME DB
+   ============================================================ */
+const DataStore = {
+  mode: 'local',
+  app: null,
+  db: null,
+  ready: false,
+
+  init(){
+    try{
+      if(!FIREBASE_READY){
+        console.warn('[DataStore] Firebase not available — using local');
+        return false;
+      }
+      this.app = firebase.app();
+      this.db  = firebase.database();
+      this.mode = 'firebase';
+      this.ready = true;
+      console.log('[DataStore] Firebase RTDB connected');
+      return true;
+    }catch(e){
+      console.warn('[DataStore] Firebase init failed', e);
+      this.mode = 'local';
+      return false;
+    }
+  },
+
+  ref(path){ return this.db.ref(path); },
+
+  upsert(collection, record){
+    if(this.mode!=='firebase' || !record || !record.id) return;
+    try{ this.ref(collection+'/'+record.id).set(record); }
+    catch(e){ console.warn('[DataStore] upsert failed', e); }
+  },
+  remove(collection, id){
+    if(this.mode!=='firebase' || !id) return;
+    try{ this.ref(collection+'/'+id).remove(); }
+    catch(e){ console.warn('[DataStore] remove failed', e); }
+  },
+  upsertHospital(record){
+    if(this.mode!=='firebase' || !record) return;
+    try{ this.ref('hospital/info').set(record); }
+    catch(e){ console.warn('[DataStore] hospital upsert failed', e); }
+  },
+
+  subscribeToRealtime(onChange){
+    if(this.mode!=='firebase') return;
+    const collections = ['alerts','beds','doctors','ambulances','patients','notifications','activity'];
+    collections.forEach(col=>{
+      this.ref(col).on('value', snap=>{
+        const val = snap.val();
+        DB.data[col] = (val && typeof val === 'object') ? Object.values(val) : [];
+        onChange && onChange(col);
+      }, err=>console.warn('[DataStore] onValue error', col, err));
+    });
+    this.ref('hospital/info').on('value', snap=>{
+      DB.data.hospital = snap.val() || null;
+      onChange && onChange('hospital');
+    });
+  }
+};
+
+/* ============================================================
+   DATA LAYER
+   ============================================================ */
+const DB = {
+  _key: 'hospital_admin_v1',
+  data: {
+    hospital: null, alerts: [], beds: [], doctors: [],
+    ambulances: [], patients: [], notifications: [], activity: []
+  },
+  load(){
+    try{
+      const raw = localStorage.getItem(this._key);
+      if(raw){ const parsed = JSON.parse(raw); Object.keys(parsed).forEach(k => { this.data[k] = parsed[k]; }); return true; }
+    }catch(e){ console.warn('DB load error', e); }
+    return false;
+  },
+  save(){
+    try{ localStorage.setItem(this._key, JSON.stringify(this.data)); return true; }
+    catch(e){ console.warn('DB save error', e); return false; }
+  },
+  add(collection, record){
+    const rec = {...record, id: record.id || uid(collection.slice(0,3).toUpperCase()), createdAt: record.createdAt || new Date().toISOString()};
+    if(!this.data[collection]) this.data[collection] = [];
+    this.data[collection].unshift(rec);
+    this.logActivity(`[ADMIN] Added ${collection.slice(0,-1)} — ${rec.id}`);
+    this.save();
+    DataStore.upsert(collection, rec);
+    return rec;
+  },
+  update(collection, id, patch){
+    const idx = this.data[collection].findIndex(x=>x.id===id);
+    if(idx<0) return null;
+    this.data[collection][idx] = {...this.data[collection][idx], ...patch, updatedAt:new Date().toISOString()};
+    this.save();
+    DataStore.upsert(collection, this.data[collection][idx]);
+    return this.data[collection][idx];
+  },
+  remove(collection, id){
+    const idx = this.data[collection].findIndex(x=>x.id===id);
+    if(idx<0) return false;
+    this.data[collection].splice(idx,1);
+    this.logActivity(`[ADMIN] Deleted ${collection.slice(0,-1)} — ${id}`);
+    this.save();
+    DataStore.remove(collection, id);
+    return true;
+  },
+  find(collection, id){ return (this.data[collection]||[]).find(x=>x.id===id); },
+  logActivity(text){
+    const rec = { id: uid('ACT'), time:new Date().toISOString(), text };
+    this.data.activity.unshift(rec);
+    if(this.data.activity.length>500) this.data.activity.length = 500;
+    DataStore.upsert('activity', rec);
+  },
+  pushNotification(title, msg, type='info'){
+    const rec = { id:uid('N'), title, msg, type, read:false, time:new Date().toISOString() };
+    this.data.notifications.unshift(rec);
+    if(this.data.notifications.length>200) this.data.notifications.length = 200;
+    this.save();
+    DataStore.upsert('notifications', rec);
+  },
+  unreadCount(){ return this.data.notifications.filter(n => !n.read).length; }
+};
+
+/* ============================================================
+   CONSTANTS
+   ============================================================ */
+const SPECIALTIES = ['Cardiologist','Neurologist','Orthopedic','General Surgeon','Gynecologist','Pediatrician','Emergency Medicine','Anesthesiologist','Radiologist','General Physician'];
+const WARDS = ['ICU','CCU','Emergency','General','Surgical','Pediatric','Maternity','Orthopedic'];
+const SHIFTS = ['Morning','Evening','Night'];
+const DOCTOR_STATUSES = ['Available','On Duty','Busy','Off Duty'];
+const AMB_STATUSES = ['Available','On-duty','Maintenance'];
+
+const getAlert = id => DB.data.alerts.find(a=>a.id===id);
+const getBed = id => DB.data.beds.find(b=>b.id===id);
+const getDoctor = id => DB.data.doctors.find(d=>d.id===id);
+const getAmbulance = id => DB.data.ambulances.find(a=>a.id===id);
+const catLabel = k => ({cardiac:'Cardiac',stroke:'Stroke',trauma:'Trauma',accident:'Accident',respiratory:'Respiratory',pediatric:'Pediatric',obstetric:'Obstetric',general:'General'}[k]||k);
+const catIcon = k => ({cardiac:'fa-heartbeat',stroke:'fa-brain',trauma:'fa-bone',accident:'fa-car-crash',respiratory:'fa-lungs',pediatric:'fa-baby',obstetric:'fa-female',general:'fa-notes-medical'}[k]||'fa-notes-medical');
+
+/* ============================================================
+   SEED — hospital info only (rest comes from Firebase or admin actions)
+   ============================================================ */
+function seedIfEmpty(){
+  const d = DB.data;
+  if(d.hospital && d.hospital.name) return;
+  d.hospital = {
+    id:'HSP-CHK', name:'Civil Hospital Khairpur',
+    location:'Khairpur, Sindh, Pakistan', area:'Khairpur',
+    type:'Civil Hospital', emergencyIncharge:'Dr. Ahmed Raza',
+    contact:'0243-111-222-333', emergencyLine:'1122',
+    receptionNumber:'0243-111-222-333',
+    totalBeds:0, status:'ACTIVE'
+  };
+  DB.save();
+  /* Push to Firebase so staff side sees the same hospital info */
+  DataStore.upsertHospital(d.hospital);
+}
+
+/* ============================================================
+   NAV — custom root-folder icons
+   ============================================================ */
+const NAV = [
+  {id:'dashboard',  label:'Dashboard',  icon:'fa-tachometer-alt',  iconImg:'dashboard.png'},
+  {id:'doctors',    label:'Doctors',    icon:'fa-user-md',         iconImg:'doctors.png',   admin:true},
+  {id:'ambulances', label:'Ambulances', icon:'fa-ambulance',       iconImg:'ambulance.png', admin:true},
+  {id:'beds',       label:'Beds',       icon:'fa-bed',             iconImg:'beds.png',      admin:true},
+  {id:'hospital',   label:'Hospital',   icon:'fa-hospital',        iconImg:'hospital.png',  admin:true},
+  {id:'alerts',     label:'Alerts',     icon:'fa-satellite-dish',  iconImg:'alerts.png'},
+  {id:'patients',   label:'Patients',   icon:'fa-hospital-user',   iconImg:'patients.png'},
+  {id:'activity',   label:'Activity',   icon:'fa-history',         iconImg:'activity.png'},
+  {id:'data',       label:'Data',       icon:'fa-database',        iconImg:'data.png',      admin:true}
+];
+
+/* ============================================================
+   APP
+   ============================================================ */
+const App = {
+  currentView: null,
+  subTab: {},
+  _cache: {},
+  _charts: { docs:null, ambs:null, beds:null },
+
+  async init(){
+    initAudio();
+    DataStore.init();
+    updateDbStatusUI();
+
+    DB.load();
+    seedIfEmpty();
+    this.renderCircleMenu();
+    this.startClock();
+    this.updateNotifBadge();
+
+    document.addEventListener('keydown', e => {
+      if(e.key==='Escape' && !$('#modalRoot').classList.contains('active')) this.goBack();
+    });
+    setInterval(()=>DB.save(), 30000);
+    setInterval(()=>this.updateNotifBadge(), 8000);
+
+    /* Live sync — every Firebase push re-renders the active view */
+    DataStore.subscribeToRealtime(col=>{
+      if(col==='hospital'){
+        const h = DB.data.hospital;
+        if(h && h.name){
+          const el = $('#activeBranchInfo');
+          if(el) el.textContent = (h.name||'') + (h.location ? ' · ' + h.location : '');
+        }
+        return;
+      }
+      /* Don't clobber typing in search inputs */
+      const focused = document.activeElement;
+      if(focused && ['INPUT','TEXTAREA','SELECT'].includes(focused.tagName)) return;
+
+      if(this.currentView && ['alerts','beds','doctors','ambulances','patients','notifications'].includes(col)){
+        this.render(this.currentView);
+      }
+      if(col==='alerts') this.renderCircleMenu();
+      if(col==='notifications') this.updateNotifBadge();
+    });
+  },
+
+  logout(){
+    if(!confirm('Log out from Admin Portal and return to login page?')) return;
+    try{ sessionStorage.removeItem('chk_admin_session'); }catch(e){}
+    window.location.href = STAFF_PORTAL_URL;
+  },
+
+  updateNotifBadge(){
+    const n = DB.unreadCount();
+    const el = $('#notifBadge'); if(!el) return;
+    if(n>0){ el.style.display='block'; el.textContent = n>9?'9+':n; } else el.style.display='none';
+  },
+
+  renderCircleMenu(){
+    const grid = $('#iconGrid'); if(!grid) return;
+    const pending = DB.data.alerts.filter(a=>['PENDING','ACKNOWLEDGED'].includes(a.status)).length;
+    const badges = {alerts: pending};
+    grid.innerHTML = NAV.map(n=>`
+      <div class="circle-item ${n.admin?'admin-only':''}" data-nav="${n.id}" onmouseenter="playClick()">
+        <div class="circle-content">
+          <img class="menu-icon" src="${n.iconImg}" alt="${esc(n.label)}"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+          <i class="fas ${n.icon} fallback-icon" style="display:none;"></i>
+          <span>${esc(n.label)}</span>
+        </div>
+        ${badges[n.id]?`<span class="badge-cnt">${badges[n.id]}</span>`:''}
+      </div>`).join('');
+    grid.querySelectorAll('[data-nav]').forEach(el=>{
+      el.onclick = () => { playClick(); this.openSection(el.dataset.nav); };
+    });
+  },
+
+  openSection(id){
+    this.currentView = id;
+    $$('.section').forEach(s=>s.classList.remove('active'));
+    const sec = $('#section-'+id); if(!sec) return;
+    sec.classList.add('active');
+    $('#mainDashboard').style.display = 'none';
+    this.render(id);
+  },
+
+  goBack(){
+    $$('.section').forEach(s=>s.classList.remove('active'));
+    $('#mainDashboard').style.display = 'flex';
+    this.currentView = null;
+    Object.keys(this._charts).forEach(k=>{
+      if(this._charts[k]){ try{ this._charts[k].destroy(); }catch(e){} this._charts[k]=null; }
+    });
+    Modal.close(true);
+    this.renderCircleMenu();
+  },
+
+  render(view){
+    const c = $('#content-'+view); if(!c) return;
+    c.scrollTop = 0;
+    try{
+      const r = {
+        dashboard:  () => this.viewDashboard(c),
+        doctors:    () => this.viewDoctors(c),
+        ambulances: () => this.viewAmbulances(c),
+        beds:       () => this.viewBeds(c),
+        hospital:   () => this.viewHospital(c),
+        alerts:     () => this.viewAlerts(c),
+        patients:   () => this.viewPatients(c),
+        activity:   () => this.viewActivity(c),
+        data:       () => this.viewData(c)
+      }[view];
+      if(r) r();
+    }catch(err){
+      console.error(err);
+      c.innerHTML = `<div class="card"><div class="empty"><i class="fas fa-exclamation-triangle"></i><div class="t">Render error</div><div class="d">${esc(err.message)}</div></div></div>`;
+    }
+  },
+
+  startClock(){
+    const el = $('#footerDateTime'); if(!el) return;
+    const upd = () => {
+      const n = new Date();
+      el.textContent = n.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}) + ' · ' + n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+    };
+    upd(); setInterval(upd,1000);
+  },
+
+  showNotifications(){
+    playClick();
+    const list = DB.data.notifications;
+    const body = list.length ? `
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button class="btn btn-sm" onclick="App.markAllRead()"><i class="fas fa-check-double"></i> Mark all read</button>
+      </div>
+      <div class="recent">
+        ${list.map(n=>`
+          <div class="item" style="padding:12px;background:${n.read?'var(--surface)':'var(--card)'};border-radius:10px;margin-bottom:8px;border:1px solid ${n.read?'var(--soft)':'var(--secondary)'};">
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:13px;margin-bottom:3px;">
+                <i class="fas fa-${n.type==='warn'?'exclamation-triangle':n.type==='error'?'times-circle':n.type==='success'?'check-circle':n.type==='gold'?'crown':'info-circle'}" style="color:${n.type==='warn'?'var(--warn)':n.type==='error'?'var(--danger)':n.type==='success'?'var(--success)':n.type==='gold'?'var(--gold)':'var(--primary)'};margin-right:6px;"></i>
+                ${esc(n.title)}
+              </div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">${esc(n.msg)}</div>
+              <div style="font-size:11px;color:var(--secondary);">${fDT(n.time)}</div>
+            </div>
+          </div>`).join('')}
+      </div>` : `<div class="empty"><i class="fas fa-bell-slash"></i><div class="t">No notifications</div><div class="d">You're all caught up</div></div>`;
+    const footer = document.createElement('div');
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Close'; cBtn.onclick=()=>Modal.close();
+    footer.appendChild(cBtn);
+    Modal.open({title:`Notifications (${list.length})`, body, footer});
+  },
+
+  markAllRead(){
+    DB.data.notifications.forEach(n => n.read = true);
+    DB.save();
+    DB.data.notifications.slice(0,50).forEach(n => DataStore.upsert('notifications', n));
+    this.updateNotifBadge();
+    Modal.close();
+    Toast.show('All notifications marked as read', 'success');
+  },
+
+  /* ============ DASHBOARD ============ */
+  viewDashboard(c){
+    const d = DB.data;
+    const docsTotal = d.doctors.length;
+    const ambsTotal = d.ambulances.length;
+    const bedsTotal = d.beds.length;
+    const pending = d.alerts.filter(a=>['PENDING','ACKNOWLEDGED'].includes(a.status)).length;
+    const activeCases = d.alerts.filter(a=>['ASSIGNED','EN_ROUTE','ARRIVED'].includes(a.status)).length;
+    const patients = d.patients.length;
+    const completedCases = d.alerts.filter(a=>a.status==='COMPLETED').length;
+    const recent = d.activity.slice(0,15);
+
+    c.innerHTML = `
+      <div class="chart-row">
+        <div class="chart-box">
+          <div class="chart-head">
+            <h3><i class="fas fa-user-md"></i> Doctors</h3>
+            <div class="chart-total">${docsTotal}<small>Total</small></div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartDoctors"></canvas></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-head">
+            <h3><i class="fas fa-ambulance"></i> Ambulances</h3>
+            <div class="chart-total">${ambsTotal}<small>Total</small></div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartAmbs"></canvas></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-head">
+            <h3><i class="fas fa-bed"></i> Beds</h3>
+            <div class="chart-total">${bedsTotal}<small>Total</small></div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartBeds"></canvas></div>
+        </div>
+      </div>
+
+      <div class="section-divider"><i class="fas fa-chart-line"></i><span>Live Operations</span><i class="fas fa-chart-line"></i></div>
+
+      <div class="stats">
+        <div class="stat red"><div class="stat-icon"><i class="fas fa-bell"></i></div><div><div class="stat-val">${pending}</div><div class="stat-lbl">Pending Alerts</div></div></div>
+        <div class="stat amber"><div class="stat-icon"><i class="fas fa-tasks"></i></div><div><div class="stat-val">${activeCases}</div><div class="stat-lbl">Active Cases</div></div></div>
+        <div class="stat gold"><div class="stat-icon"><i class="fas fa-hospital-user"></i></div><div><div class="stat-val">${patients}</div><div class="stat-lbl">Admitted Patients</div></div></div>
+        <div class="stat green"><div class="stat-icon"><i class="fas fa-heartbeat"></i></div><div><div class="stat-val">${completedCases}</div><div class="stat-lbl">Completed Cases</div></div></div>
+      </div>
+
+      <div class="section-divider"><i class="fas fa-crown"></i><span>Admin Quick Actions</span><i class="fas fa-crown"></i></div>
+
+      <div class="card">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+          <button class="btn btn-gold" style="justify-content:center;padding:14px;" onclick="App.openAddDoctorModal()"><i class="fas fa-user-plus"></i> Add Doctor</button>
+          <button class="btn btn-gold" style="justify-content:center;padding:14px;" onclick="App.openAddAmbulanceModal()"><i class="fas fa-plus-circle"></i> Add Ambulance</button>
+          <button class="btn btn-gold" style="justify-content:center;padding:14px;" onclick="App.openAddBedModal()"><i class="fas fa-plus-square"></i> Add Bed</button>
+          <button class="btn btn-primary" style="justify-content:center;padding:14px;" onclick="App.openSection('hospital')"><i class="fas fa-hospital"></i> Edit Hospital</button>
+          <button class="btn btn-primary" style="justify-content:center;padding:14px;" onclick="App.openSection('alerts')"><i class="fas fa-satellite-dish"></i> View Alerts</button>
+          <button class="btn btn-primary" style="justify-content:center;padding:14px;" onclick="App.openSection('data')"><i class="fas fa-database"></i> Data Tools</button>
+        </div>
+      </div>
+
+      <div class="section-divider"><i class="fas fa-stream"></i><span>Recent Activity</span><i class="fas fa-stream"></i></div>
+
+      <div class="card">
+        <div class="recent">
+          ${recent.length ? recent.map(a=>`<div class="item"><span class="t">${fTime(a.time)}</span><span style="color:var(--muted);flex:1;">${esc(a.text)}</span></div>`).join('') : '<div class="empty"><i class="fas fa-inbox"></i><div class="t">No activity yet</div></div>'}
+        </div>
+      </div>`;
+
+    requestAnimationFrame(()=>this.renderDashboardCharts());
+  },
+
+  renderDashboardCharts(){
+    if(!window.Chart) return;
+    const d = DB.data;
+    const docCounts = {
+      Available: d.doctors.filter(x=>x.status==='Available').length,
+      'On Duty': d.doctors.filter(x=>x.status==='On Duty').length,
+      Busy: d.doctors.filter(x=>x.status==='Busy').length,
+      'Off Duty': d.doctors.filter(x=>x.status==='Off Duty').length
+    };
+    this.drawDoughnut('chartDoctors','docs',docCounts,['#4E7C4A','#89A482','#C77E29','#A8B4A4']);
+
+    const ambCounts = {
+      Available: d.ambulances.filter(x=>x.status==='Available').length,
+      'On Duty': d.ambulances.filter(x=>x.status==='On-duty').length,
+      Maintenance: d.ambulances.filter(x=>x.status==='Maintenance').length
+    };
+    this.drawDoughnut('chartAmbs','ambs',ambCounts,['#4E7C4A','#C77E29','#B3261E']);
+
+    const bedCounts = {
+      Available: d.beds.filter(b=>b.status==='Available').length,
+      Occupied: d.beds.filter(b=>b.status==='Occupied').length,
+      Reserved: d.beds.filter(b=>b.status==='Reserved').length,
+      Maintenance: d.beds.filter(b=>b.status==='Maintenance').length
+    };
+    this.drawDoughnut('chartBeds','beds',bedCounts,['#4E7C4A','#B3261E','#C77E29','#A8B4A4']);
+  },
+
+  drawDoughnut(canvasId, key, dataObj, colors){
+    const canvas = document.getElementById(canvasId);
+    if(!canvas) return;
+    const labels = Object.keys(dataObj);
+    const values = Object.values(dataObj);
+    const existing = Chart.getChart(canvas);
+    if(existing) existing.destroy();
+    if(this._charts[key]){ try{ this._charts[key].destroy(); }catch(e){} }
+    this._charts[key] = new Chart(canvas, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#FFFFFF', hoverOffset: 6 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '62%',
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, padding: 10, font: { size: 11, weight: '600' }, color: '#3F4E3B', usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: { backgroundColor: '#3F4E3B', titleColor: '#D1EDD3', bodyColor: '#FFFFFF', padding: 10, cornerRadius: 8, displayColors: false,
+            callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed}` } }
+        }
+      }
+    });
+  },
+
+  /* ============ DOCTORS ============ */
+  viewDoctors(c){
+    const d = DB.data.doctors;
+    c.innerHTML = `
+      <div class="stats">
+        <div class="stat gold"><div class="stat-icon"><i class="fas fa-user-md"></i></div><div><div class="stat-val">${d.length}</div><div class="stat-lbl">Total Doctors</div></div></div>
+        <div class="stat green"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div><div class="stat-val">${d.filter(x=>x.status==='Available').length}</div><div class="stat-lbl">Available</div></div></div>
+        <div class="stat amber"><div class="stat-icon"><i class="fas fa-user-clock"></i></div><div><div class="stat-val">${d.filter(x=>['On Duty','Busy'].includes(x.status)).length}</div><div class="stat-lbl">On Duty / Busy</div></div></div>
+        <div class="stat"><div class="stat-icon"><i class="fas fa-user-slash"></i></div><div><div class="stat-val">${d.filter(x=>x.status==='Off Duty').length}</div><div class="stat-lbl">Off Duty</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3><i class="fas fa-user-md"></i> Doctor Roster</h3>
+          <button class="btn btn-gold" onclick="App.openAddDoctorModal()"><i class="fas fa-plus"></i> Add Doctor</button>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="adminDocSearch" placeholder="Search doctor / specialty…" oninput="App.renderAdminDocs()">
+          <select id="adminDocSpec" onchange="App.renderAdminDocs()"><option value="">All Specialties</option>${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select>
+          <select id="adminDocShift" onchange="App.renderAdminDocs()"><option value="">All Shifts</option>${SHIFTS.map(s=>`<option>${s}</option>`).join('')}</select>
+          <select id="adminDocStatus" onchange="App.renderAdminDocs()"><option value="">All Statuses</option>${DOCTOR_STATUSES.map(s=>`<option>${s}</option>`).join('')}</select>
+        </div>
+        <div class="doc-card" id="adminDocGrid"></div>
+      </div>`;
+    this.renderAdminDocs();
+  },
+
+  renderAdminDocs(){
+    const grid = $('#adminDocGrid'); if(!grid) return;
+    const q = ($('#adminDocSearch')?.value||'').toLowerCase();
+    const spec = ($('#adminDocSpec')?.value||'');
+    const shift = ($('#adminDocShift')?.value||'');
+    const status = ($('#adminDocStatus')?.value||'');
+    const docs = DB.data.doctors.filter(d=>{
+      if(q && !d.name.toLowerCase().includes(q) && !d.specialty.toLowerCase().includes(q)) return false;
+      if(spec && d.specialty!==spec) return false;
+      if(shift && d.shift!==shift) return false;
+      if(status && d.status!==status) return false;
+      return true;
+    });
+    if(!docs.length){ grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:30px;">No doctors found. <a href="javascript:App.openAddDoctorModal()" style="color:var(--gold-dark);font-weight:800;">Add one →</a></div>`; return; }
+    grid.innerHTML = docs.map(d=>{
+      const stCls = d.status==='Available'?'b-green':d.status==='On Duty'?'b-blue':d.status==='Busy'?'b-amber':'b-gray';
+      const initials = d.name.split(' ').slice(-2).map(x=>x[0]).join('').toUpperCase();
+      return `<div class="doc">
+        <div class="doc-avatar">${esc(initials)}</div>
+        <div class="doc-name">${esc(d.name)}</div>
+        <div class="doc-spec">${esc(d.specialty)}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <span class="badge ${stCls}">${esc(d.status)}</span>
+          <span style="font-size:11px;color:var(--muted);font-weight:700;">${esc(d.shift)} shift</span>
+        </div>
+        <div class="doc-meta"><span>Contact</span><strong>${esc(d.contact||'—')}</strong></div>
+        <div class="doc-meta"><span>ID</span><strong style="font-family:'Courier New',monospace;color:var(--primary);">${esc(d.id)}</strong></div>
+        <div class="doc-meta"><span>Active patients</span><strong>${d.patients||0}</strong></div>
+        <div class="doc-actions">
+          <button class="btn btn-sm" onclick="App.openEditDoctorModal('${d.id}')"><i class="fas fa-edit"></i> Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="App.deleteDoctor('${d.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>`;
+    }).join('');
+  },
+
+  openAddDoctorModal(){
+    const html = `
+      <div class="form-grid">
+        <div class="fg"><label>Doctor ID <span class="req">*</span></label><input type="text" id="adDocId" placeholder="e.g. DOC-013"></div>
+        <div class="fg"><label>Full Name <span class="req">*</span></label><input type="text" id="adDocName" placeholder="Dr. Full Name"></div>
+        <div class="fg"><label>Specialty <span class="req">*</span></label><select id="adDocSpec">${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div>
+        <div class="fg"><label>Shift <span class="req">*</span></label><select id="adDocShift">${SHIFTS.map(s=>`<option>${s}</option>`).join('')}</select></div>
+        <div class="fg" style="grid-column:1/-1;"><label>Contact Number</label><input type="text" id="adDocContact" placeholder="0300-0000000"></div>
+      </div>
+      <div id="adDocErr" style="display:none;padding:10px 14px;background:rgba(179,38,30,.08);color:var(--danger);border-radius:10px;font-size:12.5px;font-weight:700;border-left:3px solid var(--danger);"></div>`;
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Cancel'; cBtn.onclick=()=>Modal.close();
+    const sBtn = document.createElement('button'); sBtn.className='btn btn-gold'; sBtn.innerHTML='<i class="fas fa-crown"></i> Add Doctor';
+    sBtn.onclick = () => this.saveNewDoctor();
+    footer.appendChild(cBtn); footer.appendChild(sBtn);
+    Modal.open({title:'Add New Doctor', body:html, footer, gold:true, wide:true});
+    setTimeout(()=>$('#adDocId').focus(),100);
+  },
+
+  saveNewDoctor(){
+    const err = $('#adDocErr');
+    const id = $('#adDocId').value.trim().toUpperCase() || ('DOC-'+Date.now().toString(36).toUpperCase().slice(-4));
+    const name = $('#adDocName').value.trim();
+    if(!name){ err.style.display='block'; err.textContent='Doctor name is required'; return; }
+    if(DB.data.doctors.find(x=>x.id===id)){ err.style.display='block'; err.textContent='Doctor ID already exists'; return; }
+    err.style.display='none';
+    const rec = DB.add('doctors', { id, name, specialty: $('#adDocSpec').value, shift: $('#adDocShift').value, status: 'Available', contact: $('#adDocContact').value.trim(), patients: 0 });
+    DB.pushNotification('Doctor Added', `${name} (${rec.id}) added by admin`, 'gold');
+    sGold(); Modal.close();
+    Toast.show(`Doctor ${name} added — synced to staff portal`, 'gold', 4000);
+    this.renderCircleMenu();
+    if(this.currentView==='doctors') this.render('doctors');
+    if(this.currentView==='dashboard') this.render('dashboard');
+  },
+
+  openEditDoctorModal(id){
+    const d = getDoctor(id); if(!d) return;
+    const html = `
+      <div class="form-grid">
+        <div class="fg"><label>Doctor ID</label><input type="text" value="${esc(d.id)}" readonly></div>
+        <div class="fg"><label>Full Name <span class="req">*</span></label><input type="text" id="edDocName" value="${esc(d.name)}"></div>
+        <div class="fg"><label>Specialty</label><select id="edDocSpec">${SPECIALTIES.map(s=>`<option ${s===d.specialty?'selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="fg"><label>Shift</label><select id="edDocShift">${SHIFTS.map(s=>`<option ${s===d.shift?'selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="fg"><label>Status</label><select id="edDocStatus">${DOCTOR_STATUSES.map(s=>`<option ${s===d.status?'selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="fg"><label>Contact</label><input type="text" id="edDocContact" value="${esc(d.contact||'')}"></div>
+        <div class="fg"><label>Active Patients</label><input type="number" id="edDocPatients" value="${d.patients||0}" min="0"></div>
+      </div>`;
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Cancel'; cBtn.onclick=()=>Modal.close();
+    const sBtn = document.createElement('button'); sBtn.className='btn btn-gold'; sBtn.innerHTML='<i class="fas fa-save"></i> Save Changes';
+    sBtn.onclick = () => {
+      const name = $('#edDocName').value.trim();
+      if(!name){ Toast.show('Name required', 'error'); return; }
+      DB.update('doctors', id, { name, specialty: $('#edDocSpec').value, shift: $('#edDocShift').value, status: $('#edDocStatus').value, contact: $('#edDocContact').value.trim(), patients: parseInt($('#edDocPatients').value)||0 });
+      DB.logActivity(`[ADMIN] Updated doctor ${id}`);
+      Modal.close(); Toast.show('Doctor updated — synced', 'gold'); this.render('doctors');
+    };
+    footer.appendChild(cBtn); footer.appendChild(sBtn);
+    Modal.open({title:'Edit Doctor', body:html, footer, gold:true, wide:true});
+  },
+
+  deleteDoctor(id){
+    const d = getDoctor(id); if(!d) return;
+    Modal.open({
+      title:'Delete Doctor?', gold:true,
+      body:`<div class="confirm-box" style="background:#FBE9E7;border-color:#E8A9A3;color:var(--danger-dark);"><i class="fas fa-exclamation-triangle"></i> Delete <strong>${esc(d.name)}</strong> (${esc(d.id)})? This cannot be undone.</div>`,
+      footer:(()=>{
+        const f = document.createElement('div'); f.style.display='flex'; f.style.gap='10px';
+        const c = document.createElement('button'); c.className='btn'; c.textContent='Cancel'; c.onclick=()=>Modal.close();
+        const del = document.createElement('button'); del.className='btn btn-danger'; del.innerHTML='<i class="fas fa-trash"></i> Delete';
+        del.onclick = () => {
+          DB.remove('doctors', id);
+          DB.pushNotification('Doctor Removed', `${d.name} removed by admin`, 'warn');
+          Modal.close(); Toast.show('Doctor removed', 'warn');
+          this.render('doctors'); this.renderCircleMenu();
+        };
+        f.appendChild(c); f.appendChild(del); return f;
+      })()
+    });
+  },
+
+  /* ============ AMBULANCES ============ */
+  viewAmbulances(c){
+    const a = DB.data.ambulances;
+    c.innerHTML = `
+      <div class="stats">
+        <div class="stat gold"><div class="stat-icon"><i class="fas fa-ambulance"></i></div><div><div class="stat-val">${a.length}</div><div class="stat-lbl">Total Fleet</div></div></div>
+        <div class="stat green"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div><div class="stat-val">${a.filter(x=>x.status==='Available').length}</div><div class="stat-lbl">Available</div></div></div>
+        <div class="stat amber"><div class="stat-icon"><i class="fas fa-route"></i></div><div><div class="stat-val">${a.filter(x=>x.status==='On-duty').length}</div><div class="stat-lbl">On Duty</div></div></div>
+        <div class="stat red"><div class="stat-icon"><i class="fas fa-tools"></i></div><div><div class="stat-val">${a.filter(x=>x.status==='Maintenance').length}</div><div class="stat-lbl">Maintenance</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3><i class="fas fa-ambulance"></i> Ambulance Fleet</h3>
+          <button class="btn btn-gold" onclick="App.openAddAmbulanceModal()"><i class="fas fa-plus"></i> Add Ambulance</button>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="adminAmbSearch" placeholder="Search unit / driver…" oninput="App.renderAdminAmbs()">
+          <select id="adminAmbStatus" onchange="App.renderAdminAmbs()"><option value="">All Statuses</option>${AMB_STATUSES.map(s=>`<option>${s}</option>`).join('')}</select>
+        </div>
+        <div class="tw"><table>
+          <thead><tr><th>Unit</th><th>Driver</th><th>Contact</th><th>Status</th><th>Location</th><th>Assigned To</th><th class="actions">Actions</th></tr></thead>
+          <tbody id="adminAmbBody"></tbody>
+        </table></div>
+      </div>`;
+    this.renderAdminAmbs();
+  },
+
+  renderAdminAmbs(){
+    const tb = $('#adminAmbBody'); if(!tb) return;
+    const q = ($('#adminAmbSearch')?.value||'').toLowerCase();
+    const st = ($('#adminAmbStatus')?.value||'');
+    const rows = DB.data.ambulances.filter(a=>{
+      if(q && !a.number.toLowerCase().includes(q) && !(a.driver||'').toLowerCase().includes(q)) return false;
+      if(st && a.status!==st) return false;
+      return true;
+    });
+    if(!rows.length){ tb.innerHTML = `<tr><td colspan="7"><div class="empty"><i class="fas fa-ambulance"></i><div class="t">No ambulances found</div><div class="d">Click "Add Ambulance" to add one</div></div></td></tr>`; return; }
+    tb.innerHTML = rows.map(am=>{
+      const stCls = am.status==='Available'?'b-green':am.status==='On-duty'?'b-amber':'b-red';
+      const assignedAlert = am.assignedTo ? getAlert(am.assignedTo) : null;
+      return `<tr>
+        <td><strong>${esc(am.number)}</strong></td>
+        <td>${esc(am.driver)}</td>
+        <td>${esc(am.contact||'—')}</td>
+        <td><span class="badge ${stCls}">${esc(am.status)}</span></td>
+        <td style="font-size:12px;">${esc(am.location||'—')}</td>
+        <td style="font-size:12px;">${assignedAlert ? `<span class="mono" style="color:var(--danger);">${esc(assignedAlert.trackingCode)}</span> — ${esc(assignedAlert.patientName)}` : '—'}</td>
+        <td class="actions">
+          <button class="btn btn-sm" onclick="App.openEditAmbulanceModal('${am.id}')"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="App.deleteAmbulance('${am.id}')"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`;
+    }).join('');
+  },
+
+  openAddAmbulanceModal(){
+    const html = `
+      <div class="form-grid">
+        <div class="fg"><label>Unit Number <span class="req">*</span></label><input type="text" id="adAmbNum" placeholder="e.g. AMB-6001"></div>
+        <div class="fg"><label>Driver Name <span class="req">*</span></label><input type="text" id="adAmbDriver" placeholder="Driver full name"></div>
+        <div class="fg"><label>Driver Contact</label><input type="text" id="adAmbContact" placeholder="0301-0000000"></div>
+        <div class="fg" style="grid-column:1/-1;"><label>Location</label><input type="text" id="adAmbLoc" value="Hospital Base"></div>
+      </div>
+      <div id="adAmbErr" style="display:none;padding:10px 14px;background:rgba(179,38,30,.08);color:var(--danger);border-radius:10px;font-size:12.5px;font-weight:700;border-left:3px solid var(--danger);"></div>`;
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Cancel'; cBtn.onclick=()=>Modal.close();
+    const sBtn = document.createElement('button'); sBtn.className='btn btn-gold'; sBtn.innerHTML='<i class="fas fa-crown"></i> Add Ambulance';
+    sBtn.onclick = () => {
+      const err = $('#adAmbErr');
+      const num = $('#adAmbNum').value.trim();
+      const drv = $('#adAmbDriver').value.trim();
+      if(!num){ err.style.display='block'; err.textContent='Unit number required'; return; }
+      if(!drv){ err.style.display='block'; err.textContent='Driver name required'; return; }
+      if(DB.data.ambulances.find(a=>a.number===num)){ err.style.display='block'; err.textContent='Unit number already exists'; return; }
+      err.style.display='none';
+      const rec = DB.add('ambulances', { number: num, driver: drv, contact: $('#adAmbContact').value.trim(), status: 'Available', location: $('#adAmbLoc').value.trim()||'Hospital Base', assignedTo: null });
+      DB.pushNotification('Ambulance Added', `${num} (${rec.driver}) added to fleet`, 'gold');
+      sGold(); Modal.close();
+      Toast.show(`Ambulance ${num} added — synced`, 'gold', 4000);
+      this.renderCircleMenu();
+      if(this.currentView==='ambulances') this.render('ambulances');
+      if(this.currentView==='dashboard') this.render('dashboard');
+    };
+    footer.appendChild(cBtn); footer.appendChild(sBtn);
+    Modal.open({title:'Add New Ambulance', body:html, footer, gold:true, wide:true});
+    setTimeout(()=>$('#adAmbNum').focus(),100);
+  },
+
+  openEditAmbulanceModal(id){
+    const am = getAmbulance(id); if(!am) return;
+    const html = `
+      <div class="form-grid">
+        <div class="fg"><label>Unit Number</label><input type="text" value="${esc(am.number)}" readonly></div>
+        <div class="fg"><label>Driver Name <span class="req">*</span></label><input type="text" id="edAmbDriver" value="${esc(am.driver)}"></div>
+        <div class="fg"><label>Contact</label><input type="text" id="edAmbContact" value="${esc(am.contact||'')}"></div>
+        <div class="fg"><label>Status</label><select id="edAmbStatus">${AMB_STATUSES.map(s=>`<option ${s===am.status?'selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="fg" style="grid-column:1/-1;"><label>Location</label><input type="text" id="edAmbLoc" value="${esc(am.location||'')}"></div>
+      </div>`;
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Cancel'; cBtn.onclick=()=>Modal.close();
+    const sBtn = document.createElement('button'); sBtn.className='btn btn-gold'; sBtn.innerHTML='<i class="fas fa-save"></i> Save Changes';
+    sBtn.onclick = () => {
+      const st = $('#edAmbStatus').value;
+      DB.update('ambulances', id, { driver: $('#edAmbDriver').value.trim(), contact: $('#edAmbContact').value.trim(), status: st, location: $('#edAmbLoc').value.trim(), assignedTo: st==='Available' ? null : am.assignedTo });
+      DB.logActivity(`[ADMIN] Updated ambulance ${id}`);
+      Modal.close(); Toast.show('Ambulance updated — synced', 'gold'); this.render('ambulances');
+    };
+    footer.appendChild(cBtn); footer.appendChild(sBtn);
+    Modal.open({title:'Edit Ambulance', body:html, footer, gold:true, wide:true});
+  },
+
+  deleteAmbulance(id){
+    const am = getAmbulance(id); if(!am) return;
+    Modal.open({
+      title:'Remove Ambulance?', gold:true,
+      body:`<div class="confirm-box" style="background:#FBE9E7;border-color:#E8A9A3;color:var(--danger-dark);"><i class="fas fa-exclamation-triangle"></i> Remove <strong>${esc(am.number)}</strong> (driver: ${esc(am.driver)})? Cannot be undone.</div>`,
+      footer:(()=>{
+        const f = document.createElement('div'); f.style.display='flex'; f.style.gap='10px';
+        const c = document.createElement('button'); c.className='btn'; c.textContent='Cancel'; c.onclick=()=>Modal.close();
+        const del = document.createElement('button'); del.className='btn btn-danger'; del.innerHTML='<i class="fas fa-trash"></i> Remove';
+        del.onclick = () => {
+          DB.remove('ambulances', id);
+          DB.pushNotification('Ambulance Removed', `${am.number} removed from fleet`, 'warn');
+          Modal.close(); Toast.show('Ambulance removed', 'warn');
+          this.render('ambulances'); this.renderCircleMenu();
+        };
+        f.appendChild(c); f.appendChild(del); return f;
+      })()
+    });
+  },
+
+  /* ============ BEDS ============ */
+  viewBeds(c){
+    const grouped = {};
+    DB.data.beds.forEach(b=>{ if(!grouped[b.ward]) grouped[b.ward]=[]; grouped[b.ward].push(b); });
+    c.innerHTML = `
+      <div class="stats">
+        <div class="stat gold"><div class="stat-icon"><i class="fas fa-bed"></i></div><div><div class="stat-val">${DB.data.beds.length}</div><div class="stat-lbl">Total Beds</div></div></div>
+        <div class="stat green"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div><div class="stat-val">${DB.data.beds.filter(b=>b.status==='Available').length}</div><div class="stat-lbl">Available</div></div></div>
+        <div class="stat red"><div class="stat-icon"><i class="fas fa-procedures"></i></div><div><div class="stat-val">${DB.data.beds.filter(b=>b.status==='Occupied').length}</div><div class="stat-lbl">Occupied</div></div></div>
+        <div class="stat amber"><div class="stat-icon"><i class="fas fa-tools"></i></div><div><div class="stat-val">${DB.data.beds.filter(b=>['Reserved','Maintenance'].includes(b.status)).length}</div><div class="stat-lbl">Reserved / Maint.</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3><i class="fas fa-bed"></i> Beds by Ward</h3>
+          <button class="btn btn-gold" onclick="App.openAddBedModal()"><i class="fas fa-plus"></i> Add Bed</button>
+        </div>
+        <div class="legend">
+          <span class="lg-free">Available</span><span class="lg-occ">Occupied</span>
+          <span class="lg-res">Reserved</span><span class="lg-maint">Maintenance</span>
+        </div>
+        ${Object.keys(grouped).length ? Object.entries(grouped).map(([ward,beds])=>{
+          const av = beds.filter(b=>b.status==='Available').length;
+          return `<div style="margin-bottom:18px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:8px 12px;background:var(--bg);border-radius:10px;border-left:4px solid var(--primary);">
+              <div style="font-weight:800;font-size:13.5px;color:var(--primary);"><i class="fas fa-notes-medical"></i> ${esc(ward)} Ward</div>
+              <div style="font-size:12px;color:var(--muted);font-weight:700;">${av} available / ${beds.length} total</div>
+            </div>
+            <div class="bed-grid">
+              ${beds.map(b=>{
+                const cls = b.status==='Available'?'free':b.status==='Occupied'?'occ':b.status==='Reserved'?'res':'maint';
+                return `<div class="bed-tile ${cls}" onclick="App.openBedEditModal('${b.id}')">
+                  <div class="bn">${esc(b.number)}</div>
+                  <div class="wt">${esc(b.type)}</div>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>`;
+        }).join('') : '<div class="empty"><i class="fas fa-bed"></i><div class="t">No beds configured</div><div class="d">Click "Add Bed" to create bed records</div></div>'}
+      </div>`;
+  },
+
+  openAddBedModal(){
+    const html = `
+      <div class="form-grid">
+        <div class="fg"><label>Ward <span class="req">*</span></label><select id="adBedWard">${WARDS.map(w=>`<option>${w}</option>`).join('')}</select></div>
+        <div class="fg"><label>Bed Number <span class="req">*</span></label><input type="text" id="adBedNum" placeholder="e.g. 21"></div>
+        <div class="fg" style="grid-column:1/-1;"><label>Type</label><select id="adBedType">${WARDS.map(w=>`<option>${w}</option>`).join('')}</select></div>
+      </div>
+      <div id="adBedErr" style="display:none;padding:10px 14px;background:rgba(179,38,30,.08);color:var(--danger);border-radius:10px;font-size:12.5px;font-weight:700;border-left:3px solid var(--danger);"></div>`;
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Cancel'; cBtn.onclick=()=>Modal.close();
+    const sBtn = document.createElement('button'); sBtn.className='btn btn-gold'; sBtn.innerHTML='<i class="fas fa-crown"></i> Add Bed';
+    sBtn.onclick = () => {
+      const err = $('#adBedErr');
+      const ward = $('#adBedWard').value;
+      const num = $('#adBedNum').value.trim();
+      if(!num){ err.style.display='block'; err.textContent='Bed number required'; return; }
+      const id = `${ward.slice(0,3).toUpperCase()}-${num.padStart(2,'0')}`;
+      if(getBed(id)){ err.style.display='block'; err.textContent='Bed ID already exists'; return; }
+      err.style.display='none';
+      DB.add('beds', {id, ward, number: num.padStart(2,'0'), type: $('#adBedType').value, status: 'Available', patientId: null});
+      DB.pushNotification('Bed Added', `${id} (${ward} ward)`, 'gold');
+      sGold(); Modal.close();
+      Toast.show('Bed added — synced', 'gold');
+      this.render('beds'); this.renderCircleMenu();
+    };
+    footer.appendChild(cBtn); footer.appendChild(sBtn);
+    Modal.open({title:'Add New Bed', body:html, footer, gold:true});
+  },
+
+  openBedEditModal(id){
+    const b = getBed(id); if(!b) return;
+    const html = `
+      <div class="form-grid">
+        <div class="pf" style="grid-column:1/-1;"><div class="pf-lbl">Bed ID</div><div class="pf-val">${esc(b.id)} · ${esc(b.ward)} Ward</div></div>
+        <div class="fg" style="grid-column:1/-1;"><label>Status <span class="req">*</span></label><select id="edBedStatus">
+          ${['Available','Occupied','Reserved','Maintenance'].map(s=>`<option ${s===b.status?'selected':''}>${s}</option>`).join('')}
+        </select></div>
+        <div class="fg"><label>Type</label><select id="edBedType">${WARDS.map(w=>`<option ${w===b.type?'selected':''}>${w}</option>`).join('')}</select></div>
+      </div>`;
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Cancel'; cBtn.onclick=()=>Modal.close();
+    const dBtn = document.createElement('button'); dBtn.className='btn btn-danger'; dBtn.innerHTML='<i class="fas fa-trash"></i> Delete';
+    const sBtn = document.createElement('button'); sBtn.className='btn btn-gold'; sBtn.innerHTML='<i class="fas fa-save"></i> Save';
+    sBtn.onclick = () => {
+      DB.update('beds', id, {status: $('#edBedStatus').value, type: $('#edBedType').value});
+      DB.logActivity(`[ADMIN] Updated bed ${id}`);
+      Modal.close(); Toast.show('Bed updated — synced', 'gold'); this.render('beds');
+    };
+    dBtn.onclick = () => {
+      Modal.close();
+      setTimeout(()=>{
+        Modal.open({
+          title:'Delete Bed?', gold:true,
+          body:`<div class="confirm-box" style="background:#FBE9E7;border-color:#E8A9A3;color:var(--danger-dark);"><i class="fas fa-exclamation-triangle"></i> Delete bed <strong>${esc(b.id)}</strong> permanently?</div>`,
+          footer:(()=>{
+            const f = document.createElement('div'); f.style.display='flex'; f.style.gap='10px';
+            const c = document.createElement('button'); c.className='btn'; c.textContent='Cancel'; c.onclick=()=>Modal.close();
+            const del = document.createElement('button'); del.className='btn btn-danger'; del.innerHTML='<i class="fas fa-trash"></i> Delete';
+            del.onclick = () => { DB.remove('beds', id); Modal.close(); Toast.show('Bed deleted', 'warn'); this.render('beds'); };
+            f.appendChild(c); f.appendChild(del); return f;
+          })()
+        });
+      }, 250);
+    };
+    footer.appendChild(cBtn); footer.appendChild(dBtn); footer.appendChild(sBtn);
+    Modal.open({title:'Edit Bed', body:html, footer, gold:true});
+  },
+
+  /* ============ HOSPITAL ============ */
+  viewHospital(c){
+    const h = DB.data.hospital || {};
+    c.innerHTML = `
+      <div class="card">
+        <div class="card-head">
+          <h3><i class="fas fa-hospital"></i> Hospital Information</h3>
+          <button class="btn btn-gold" onclick="App.openEditHospitalModal()"><i class="fas fa-edit"></i> Edit Settings</button>
+        </div>
+        <div class="confirm-box" style="background:rgba(184,134,11,.1);border-color:rgba(184,134,11,.35);color:var(--gold-dark);">
+          <i class="fas fa-crown"></i> These settings are shared with the patient portal and staff portal via Firebase.
+        </div>
+        <div class="profile-grid">
+          ${[
+            ['Hospital Name', h.name],['Hospital ID', h.id],
+            ['Location', h.location],['Area', h.area],
+            ['Type', h.type],['Emergency Incharge', h.emergencyIncharge],
+            ['Main Contact', h.contact],['Emergency Line', h.emergencyLine],
+            ['Reception Number', h.receptionNumber||'—'],
+            ['Total Beds', h.totalBeds||0],['Status', h.status]
+          ].map(([k,v])=>`<div class="pf"><div class="pf-lbl">${esc(k)}</div><div class="pf-val">${esc(v||'—')}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3><i class="fas fa-chart-pie"></i> Live Snapshot</h3></div>
+        <div class="stats" style="margin-bottom:0;">
+          <div class="stat gold"><div class="stat-icon"><i class="fas fa-user-md"></i></div><div><div class="stat-val">${DB.data.doctors.length}</div><div class="stat-lbl">Doctors</div></div></div>
+          <div class="stat amber"><div class="stat-icon"><i class="fas fa-ambulance"></i></div><div><div class="stat-val">${DB.data.ambulances.length}</div><div class="stat-lbl">Ambulances</div></div></div>
+          <div class="stat green"><div class="stat-icon"><i class="fas fa-bed"></i></div><div><div class="stat-val">${DB.data.beds.length}</div><div class="stat-lbl">Beds</div></div></div>
+          <div class="stat red"><div class="stat-icon"><i class="fas fa-bell"></i></div><div><div class="stat-val">${DB.data.alerts.filter(a=>a.status==='PENDING').length}</div><div class="stat-lbl">Pending Alerts</div></div></div>
+        </div>
+      </div>`;
+  },
+
+  openEditHospitalModal(){
+    const h = DB.data.hospital || {};
+    const html = `
+      <div class="confirm-box"><i class="fas fa-crown"></i> Changes will sync to patient and staff portals instantly.</div>
+      <div class="form-grid">
+        <div class="fg"><label>Hospital ID</label><input type="text" value="${esc(h.id||'')}" readonly></div>
+        <div class="fg"><label>Hospital Name <span class="req">*</span></label><input type="text" id="ehName" value="${esc(h.name||'')}"></div>
+        <div class="fg" style="grid-column:1/-1;"><label>Location</label><input type="text" id="ehLoc" value="${esc(h.location||'')}"></div>
+        <div class="fg"><label>Area</label><input type="text" id="ehArea" value="${esc(h.area||'')}"></div>
+        <div class="fg"><label>Type</label><input type="text" id="ehType" value="${esc(h.type||'')}"></div>
+        <div class="fg"><label>Emergency Incharge</label><input type="text" id="ehInch" value="${esc(h.emergencyIncharge||'')}"></div>
+        <div class="fg"><label>Main Contact</label><input type="text" id="ehContact" value="${esc(h.contact||'')}"></div>
+        <div class="fg"><label>Emergency Line</label><input type="text" id="ehLine" value="${esc(h.emergencyLine||'')}"></div>
+        <div class="fg"><label>Reception Number</label><input type="text" id="ehRecep" value="${esc(h.receptionNumber||'')}"></div>
+        <div class="fg"><label>Status</label><select id="ehStatus">${['ACTIVE','INACTIVE','MAINTENANCE'].map(s=>`<option ${s===h.status?'selected':''}>${s}</option>`).join('')}</select></div>
+      </div>
+      <div id="ehErr" style="display:none;padding:10px 14px;background:rgba(179,38,30,.08);color:var(--danger);border-radius:10px;font-size:12.5px;font-weight:700;border-left:3px solid var(--danger);"></div>`;
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Cancel'; cBtn.onclick=()=>Modal.close();
+    const sBtn = document.createElement('button'); sBtn.className='btn btn-gold'; sBtn.innerHTML='<i class="fas fa-save"></i> Save Settings';
+    sBtn.onclick = () => {
+      const name = $('#ehName').value.trim();
+      if(!name){ $('#ehErr').style.display='block'; $('#ehErr').textContent='Hospital name required'; return; }
+      const updated = {
+        ...(DB.data.hospital||{}),
+        name, location: $('#ehLoc').value.trim(), area: $('#ehArea').value.trim(),
+        type: $('#ehType').value.trim(), emergencyIncharge: $('#ehInch').value.trim(),
+        contact: $('#ehContact').value.trim(), emergencyLine: $('#ehLine').value.trim(),
+        receptionNumber: $('#ehRecep').value.trim(), status: $('#ehStatus').value
+      };
+      DB.data.hospital = updated;
+      DB.save();
+      DataStore.upsertHospital(updated);
+      DB.logActivity(`[ADMIN] Hospital settings updated`);
+      Modal.close(); Toast.show('Hospital settings saved — synced', 'gold'); this.render('hospital');
+    };
+    footer.appendChild(cBtn); footer.appendChild(sBtn);
+    Modal.open({title:'Edit Hospital Settings', body:html, footer, gold:true, wide:true});
+  },
+
+  /* ============ ALERTS ============ */
+  viewAlerts(c){
+    const all = DB.data.alerts;
+    const pending = all.filter(a=>['PENDING','ACKNOWLEDGED'].includes(a.status));
+    const assigned = all.filter(a=>['ASSIGNED','EN_ROUTE','ARRIVED'].includes(a.status));
+    const done = all.filter(a=>['ADMITTED','COMPLETED','CANCELLED'].includes(a.status));
+    c.innerHTML = `
+      <div class="stats">
+        <div class="stat red"><div class="stat-icon"><i class="fas fa-bell"></i></div><div><div class="stat-val">${pending.length}</div><div class="stat-lbl">Pending</div></div></div>
+        <div class="stat amber"><div class="stat-icon"><i class="fas fa-tasks"></i></div><div><div class="stat-val">${assigned.length}</div><div class="stat-lbl">In Progress</div></div></div>
+        <div class="stat green"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div><div class="stat-val">${done.length}</div><div class="stat-lbl">Completed / Cancelled</div></div></div>
+        <div class="stat gold"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div><div class="stat-val">${all.length}</div><div class="stat-lbl">Total Alerts</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3><i class="fas fa-list"></i> All Alerts (from patient portal — live)</h3></div>
+        <div class="tw"><table>
+          <thead><tr><th>Code</th><th>Patient</th><th>Category</th><th>Priority</th><th>ETA</th><th>Status</th><th>Received</th><th>Assigned</th></tr></thead>
+          <tbody>${all.length ? all.map(a=>{
+            const cls = a.status==='PENDING'?'b-red':a.status==='ACKNOWLEDGED'?'b-amber':a.status==='ASSIGNED'?'b-blue':a.status==='COMPLETED'?'b-green':'b-gray';
+            return `<tr>
+              <td class="mono" style="color:var(--danger);">${esc(a.trackingCode)}</td>
+              <td><strong>${esc(a.patientName)}</strong><div style="font-size:11.5px;color:var(--muted);">${esc(a.age)} · ${esc(a.gender)}</div></td>
+              <td><span class="alert-cat ${a.category}"><i class="fas ${catIcon(a.category)}"></i> ${esc(catLabel(a.category))}</span></td>
+              <td><span class="badge ${a.priority==='CRITICAL'?'b-red':a.priority==='HIGH'?'b-amber':'b-blue'}">${esc(a.priority||'MEDIUM')}</span></td>
+              <td>${esc(a.eta||'—')} min</td>
+              <td><span class="badge ${cls}">${esc(a.status)}</span></td>
+              <td style="font-size:11.5px;">${minutesFrom(a.createdAt)} min ago</td>
+              <td style="font-size:11.5px;">${a.assignedBed?`Bed: <strong>${esc(a.assignedBed)}</strong>`:'—'}${a.assignedDoctor?`<br>Dr: ${esc((getDoctor(a.assignedDoctor)||{}).name||'—')}`:''}</td>
+            </tr>`;
+          }).join('') : '<tr><td colspan="8"><div class="empty"><i class="fas fa-satellite-dish"></i><div class="t">No alerts yet</div><div class="d">Alerts from the patient portal will appear here in real-time</div></div></td></tr>'}
+          </tbody>
+        </table></div>
+      </div>`;
+  },
+
+  /* ============ PATIENTS ============ */
+  viewPatients(c){
+    const all = DB.data.patients;
+    c.innerHTML = `
+      <div class="stats">
+        <div class="stat gold"><div class="stat-icon"><i class="fas fa-hospital-user"></i></div><div><div class="stat-val">${all.length}</div><div class="stat-lbl">Total Patient Records</div></div></div>
+        <div class="stat green"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div><div class="stat-val">${all.filter(p=>p.status==='ADMITTED'||p.status==='COMPLETED').length}</div><div class="stat-lbl">Admitted / Completed</div></div></div>
+        <div class="stat amber"><div class="stat-icon"><i class="fas fa-route"></i></div><div><div class="stat-val">${DB.data.alerts.filter(a=>['ASSIGNED','EN_ROUTE','ARRIVED'].includes(a.status)).length}</div><div class="stat-lbl">Currently In Transit</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3><i class="fas fa-list"></i> All Patient Records (live)</h3></div>
+        <div class="tw"><table>
+          <thead><tr><th>Tracking</th><th>Patient</th><th>Age/Gender</th><th>Category</th><th>Ward / Bed</th><th>Doctor</th><th>Status</th></tr></thead>
+          <tbody>${all.length ? all.map(p=>{
+            const statusCls = p.status==='ADMITTED'?'green':p.status==='COMPLETED'?'green':p.status==='CANCELLED'?'gray':'amber';
+            const bedLabel = p.bedId ? `${esc(p.ward||'—')} · ${esc(p.bedId)}` : '—';
+            const docName = p.doctorId ? ((getDoctor(p.doctorId)||{}).name||'—') : '—';
+            return `<tr>
+              <td class="mono" style="color:var(--danger);">${esc(p.trackingCode)}</td>
+              <td><strong>${esc(p.patientName)}</strong></td>
+              <td>${esc(p.age||'—')} · ${esc(p.gender||'—')}</td>
+              <td><span class="alert-cat ${p.category||'general'}"><i class="fas ${catIcon(p.category||'general')}"></i> ${esc(catLabel(p.category||'general'))}</span></td>
+              <td style="font-size:12px;">${bedLabel}</td>
+              <td style="font-size:12px;">${esc(docName)}</td>
+              <td><span class="badge b-${statusCls}">${esc((p.status||'').replace('_',' '))}</span></td>
+            </tr>`;
+          }).join('') : '<tr><td colspan="7"><div class="empty"><i class="fas fa-hospital-user"></i><div class="t">No patient records yet</div></div></td></tr>'}
+          </tbody>
+        </table></div>
+      </div>`;
+  },
+
+  /* ============ ACTIVITY ============ */
+  viewActivity(c){
+    const list = DB.data.activity;
+    c.innerHTML = `
+      <div class="card">
+        <div class="card-head">
+          <h3><i class="fas fa-history"></i> Full Activity Log (${list.length})</h3>
+          <button class="btn btn-sm" onclick="App.clearActivity()"><i class="fas fa-broom"></i> Clear Log</button>
+        </div>
+        ${list.length ? `
+          <div class="recent" style="max-height:calc(100vh - 260px);">
+            ${list.map(a=>`
+              <div class="item" style="padding:11px 0;">
+                <span class="t" style="min-width:78px;">${fDT(a.time)}</span>
+                <span style="color:var(--text);flex:1;font-size:12.5px;">${esc(a.text)}</span>
+              </div>`).join('')}
+          </div>` : '<div class="empty"><i class="fas fa-inbox"></i><div class="t">No activity yet</div></div>'}
+      </div>`;
+  },
+
+  clearActivity(){
+    if(!confirm('Clear all activity log entries from Firebase?')) return;
+    DB.data.activity = [];
+    DB.save();
+    try{
+      if(FIREBASE_READY) firebase.database().ref('activity').remove();
+    }catch(e){}
+    Toast.show('Activity log cleared', 'warn');
+    this.render('activity');
+  },
+
+  /* ============ DATA ============ */
+  viewData(c){
+    const size = new Blob([JSON.stringify(DB.data)]).size;
+    const counts = {};
+    Object.keys(DB.data).forEach(k=>{
+      if(Array.isArray(DB.data[k])) counts[k] = DB.data[k].length;
+    });
+    c.innerHTML = `
+      <div class="card">
+        <div class="card-head"><h3><i class="fas fa-info-circle"></i> Storage Info</h3></div>
+        <div style="padding:14px;background:var(--card);border-radius:10px;margin-bottom:16px;">
+          <div style="font-size:13px;color:var(--muted);">Firebase RTDB · Local Cache</div>
+          <div style="font-size:22px;font-weight:800;color:var(--primary);margin-top:4px;">${(size/1024).toFixed(1)} KB</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
+          ${Object.entries(counts).map(([k,v])=>`
+            <div style="background:var(--bg);border:1px solid var(--soft);border-radius:8px;padding:11px 13px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;">${k}</div>
+              <div style="font-size:18px;font-weight:800;color:var(--primary);margin-top:4px;">${v}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3><i class="fas fa-database"></i> Admin Actions</h3></div>
+        <div class="confirm-box"><i class="fas fa-crown"></i> These actions affect the shared Firebase database. Use with caution.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-gold" onclick="App.exportAllData()"><i class="fas fa-download"></i> Export All Data</button>
+          <button class="btn" onclick="App.openImportModal()"><i class="fas fa-upload"></i> Import Data</button>
+          <button class="btn btn-danger" onclick="App.confirmReset()"><i class="fas fa-trash"></i> Reset Local Cache</button>
+        </div>
+      </div>`;
+  },
+
+  exportAllData(){
+    const blob = new Blob([JSON.stringify(DB.data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `civil-hospital-admin-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    Toast.show('Data exported successfully', 'success');
+  },
+
+  openImportModal(){
+    const html = `
+      <div class="confirm-box"><i class="fas fa-exclamation-triangle"></i> Import will push data to Firebase. This will sync to the staff portal.</div>
+      <div class="fg"><label>Select JSON backup file</label><input type="file" id="importFile" accept=".json"></div>
+      <div id="impErr" style="display:none;padding:10px 14px;background:rgba(179,38,30,.08);color:var(--danger);border-radius:10px;font-size:12.5px;font-weight:700;border-left:3px solid var(--danger);"></div>`;
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Cancel'; cBtn.onclick=()=>Modal.close();
+    const iBtn = document.createElement('button'); iBtn.className='btn btn-gold'; iBtn.innerHTML='<i class="fas fa-upload"></i> Import';
+    iBtn.onclick = () => {
+      const f = $('#importFile').files[0];
+      if(!f){ $('#impErr').style.display='block'; $('#impErr').textContent='Please select a file'; return; }
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try{
+          const data = JSON.parse(ev.target.result);
+          Object.keys(data).forEach(k => { if(k in DB.data) DB.data[k] = data[k]; });
+          DB.save();
+          /* Push collections to Firebase */
+          ['doctors','ambulances','beds','patients','alerts','notifications'].forEach(col=>{
+            (DB.data[col]||[]).forEach(rec=>DataStore.upsert(col, rec));
+          });
+          if(DB.data.hospital) DataStore.upsertHospital(DB.data.hospital);
+          Modal.close();
+          Toast.show('Data imported & synced to Firebase', 'success');
+          this.renderCircleMenu();
+          if(this.currentView) this.render(this.currentView);
+        }catch(err){
+          $('#impErr').style.display='block';
+          $('#impErr').textContent='Invalid JSON: '+err.message;
+        }
+      };
+      reader.readAsText(f);
+    };
+    footer.appendChild(cBtn); footer.appendChild(iBtn);
+    Modal.open({title:'Import Data Backup', body:html, footer, gold:true});
+  },
+
+  confirmReset(){
+    Modal.open({
+      title:'Reset Local Admin Cache?', gold:true,
+      body:`<div class="confirm-box" style="background:#FBE9E7;border-color:#E8A9A3;color:var(--danger-dark);"><i class="fas fa-exclamation-triangle"></i> <strong>DANGER:</strong> This only clears the local browser cache. Firebase data will NOT be deleted. Use this only if the local cache is out of sync.</div>`,
+      footer:(()=>{
+        const f = document.createElement('div'); f.style.display='flex'; f.style.gap='10px';
+        const c = document.createElement('button'); c.className='btn'; c.textContent='Cancel'; c.onclick=()=>Modal.close();
+        const del = document.createElement('button'); del.className='btn btn-danger'; del.innerHTML='<i class="fas fa-trash"></i> Reset & Reload';
+        del.onclick = () => {
+          localStorage.removeItem(DB._key);
+          Toast.show('Local cache cleared. Reloading…', 'warn');
+          setTimeout(()=>location.reload(), 1200);
+        };
+        f.appendChild(c); f.appendChild(del); return f;
+      })()
+    });
+  }
+};
+
+/* ============================================================
+   DB STATUS UI
+   ============================================================ */
+function updateDbStatusUI(){
+  const el = $('#dbStatus');
+  const txt = $('#dbStatusText');
+  if(!el || !txt) return;
+  if(DataStore.mode === 'firebase'){
+    el.className = 'db-status firebase';
+    txt.textContent = 'Firebase Connected';
+  } else {
+    el.className = 'db-status local';
+    txt.textContent = 'Offline (Local)';
+  }
+}
+
+/* ============================================================
+   SESSION VALIDATION (from URL token or local)
+   ============================================================ */
+function validateSession(){
+  return new Promise((resolve)=>{
+    /* 1. Check URL for session token */
+    const params = new URLSearchParams(location.search);
+    const token = params.get('session');
+
+    if(token){
+      try{
+        firebase.database().ref('sessions/' + token).once('value').then(snap=>{
+          const s = snap.val();
+          if(s && s.role === 'admin' && s.expiresAt && s.expiresAt > Date.now()){
+            /* Save locally */
+            try{ sessionStorage.setItem('chk_admin_session', JSON.stringify(s)); }catch(e){}
+            /* Delete token (one-time use) */
+            firebase.database().ref('sessions/' + token).remove().catch(()=>{});
+            /* Clean the URL */
+            try{
+              const url = new URL(location.href);
+              url.searchParams.delete('session');
+              history.replaceState({}, '', url.toString());
+            }catch(e){}
+            resolve(s);
+          } else {
+            console.warn('[Auth] Invalid or expired token');
+            resolve(null);
+          }
+        }).catch(err=>{
+          console.warn('[Auth] Token fetch failed', err);
+          resolve(null);
+        });
+        return;
+      }catch(e){
+        console.warn('[Auth] Firebase error', e);
+        resolve(null);
+        return;
+      }
+    }
+
+    /* 2. Check local session */
+    try{
+      const s = JSON.parse(sessionStorage.getItem('chk_admin_session') || 'null');
+      if(s && s.role === 'admin' && s.expiresAt && s.expiresAt > Date.now()){
+        resolve(s);
+        return;
+      }
+    }catch(e){}
+
+    resolve(null);
+  });
+}
+
+/* ============================================================
+   AUTH GATE UI
+   ============================================================ */
+function showAuthGate(message, showButton=true){
+  const gate = $('#authGate');
+  const status = $('#authGateStatusText');
+  const actions = $('#authGateActions');
+  const spinner = $('#authGateStatus i');
+  gate.classList.add('show');
+  if(message && status) status.textContent = message;
+  if(spinner){
+    spinner.className = showButton ? 'fas fa-lock' : 'fas fa-spinner fa-spin';
+    spinner.style.color = showButton ? '#F5E6B8' : '#D1EDD3';
+  }
+  if(actions) actions.style.display = showButton ? 'flex' : 'none';
+}
+
+function hideAuthGate(){
+  const gate = $('#authGate');
+  if(gate) gate.classList.remove('show');
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', async () => {
+  /* 1. Show auth gate in "Verifying" state */
+  showAuthGate('Verifying session…', false);
+
+  /* 2. Validate */
+  const session = await validateSession();
+
+  if(!session){
+    /* No session → show "Go to Login Portal" screen */
+    showAuthGate('Please login from the main portal to continue', true);
+    return;
+  }
+
+  /* 3. Hide gate, show admin */
+  hideAuthGate();
+  const appEl = $('#adminApp');
+  appEl.style.display = 'flex';
+  appEl.style.width = '100%';
+  appEl.style.height = '100%';
+
+  /* 4. Init admin */
+  try{
+    await App.init();
+    setInterval(()=>App.renderCircleMenu(), 30000);
+    Toast.show('Welcome back, Admin · Live sync active', 'gold', 3500);
+  } catch(e){
+    console.error('Admin init failed', e);
+    Toast.show('Initialization error: ' + e.message, 'error', 5000);
+  }
+});
+
+/* Globals */
+window.App = App;
+window.DB = DB;
+window.Toast = Toast;
+window.Modal = Modal;
+window.DataStore = DataStore;
+window.playClick = playClick;
+</script>
+</body>
+</html>
