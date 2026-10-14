@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>Civil Hospital Khairpur — Staff & Reception Management</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+/* ============================================================
+   SHARED ROOT VARIABLES
+   ============================================================ */
+:root{
+  --primary:#5C7057;--primary-dark:#3F4E3B;--secondary:#89A482;--card:#D1EDD3;
+  --border:#ACC5A6;--text:#1F2A1D;--muted:#5A6B56;
+  --danger:#B3261E;--danger-dark:#8C1D17;--warn:#C77E29;--warn-dark:#A5651A;--success:#4E7C4A;
+  --bg:#F7FAF7;--surface:#FFFFFF;--soft:#E8F0E8;
+  --glass-bg:rgba(255,255,255,.14);
+  --glass-bg-strong:rgba(255,255,255,.22);
+  --glass-border:rgba(255,255,255,.35);
+  --glass-shadow:0 22px 60px rgba(0,0,0,.45);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans',Arial,sans-serif;color:var(--text);user-select:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+input,select,textarea{font-family:inherit;}
+
+/* ============================================================
+   SCREEN WRAPPERS
+   ============================================================ */
+#authScreen{position:fixed;inset:0;z-index:1;}
+#dashboardScreen{position:fixed;inset:0;z-index:1;display:none;background:url('background4.jpg') center center / cover no-repeat fixed;}
+
+/* ============================================================
+   AUTH SCREEN STYLES
+   ============================================================ */
+.bg-layer{position:fixed;inset:0;z-index:-3;background:url('background5.jpg') center center / cover no-repeat fixed;transform:scale(1.05);}
+.bg-overlay{position:fixed;inset:0;z-index:-2;background:linear-gradient(135deg,rgba(31,42,29,.72) 0%,rgba(63,78,59,.55) 50%,rgba(31,42,29,.78) 100%);}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.45;z-index:-1;pointer-events:none;animation:float 18s ease-in-out infinite;}
+.blob.b1{width:420px;height:420px;background:#89A482;top:-120px;left:-120px;animation-delay:0s;}
+.blob.b2{width:360px;height:360px;background:#D1EDD3;bottom:-140px;right:-100px;animation-delay:-6s;}
+.blob.b3{width:300px;height:300px;background:#5C7057;top:40%;right:15%;animation-delay:-12s;opacity:.35;}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(40px,-30px) scale(1.08);}66%{transform:translate(-30px,25px) scale(.95);}}
+.auth-wrapper{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:24px;}
+.glass-card{width:100%;max-width:440px;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);border:1.5px solid var(--glass-border);border-radius:24px;box-shadow:var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.35);padding:38px 34px 30px;position:relative;overflow:hidden;animation:cardIn .7s cubic-bezier(.22,1,.36,1);}
+.glass-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);}
+.glass-card::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.14),transparent 45%);pointer-events:none;}
+@keyframes cardIn{from{opacity:0;transform:translateY(28px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+.brand-head{text-align:center;margin-bottom:26px;position:relative;z-index:2;}
+.logo-wrap{width:96px;height:96px;margin:0 auto 16px;border-radius:50%;background:rgba(255,255,255,.22);border:1.5px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.4);backdrop-filter:blur(8px);animation:logoIn .8s cubic-bezier(.22,1,.36,1) .1s backwards;}
+@keyframes logoIn{from{opacity:0;transform:scale(.6) rotate(-8deg);}to{opacity:1;transform:scale(1) rotate(0);}}
+.logo-wrap img{width:78px;height:78px;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));}
+.logo-wrap .fallback{width:100%;height:100%;display:none;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:26px;letter-spacing:1px;}
+.brand-head h1{font-size:19px;font-weight:800;letter-spacing:.4px;color:#fff;line-height:1.3;text-shadow:0 2px 14px rgba(0,0,0,.55);}
+.brand-head h1 .accent{color:var(--card);}
+.brand-head .subtitle{display:block;margin-top:8px;font-size:11px;letter-spacing:3.5px;color:rgba(255,255,255,.82);font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,.6);}
+.brand-head .divider{width:60px;height:3px;margin:14px auto 0;border-radius:3px;background:linear-gradient(90deg,transparent,var(--card),transparent);opacity:.75;}
+.auth-form{position:relative;z-index:2;}
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:11px;font-weight:800;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:9px;text-shadow:0 1px 6px rgba(0,0,0,.5);display:flex;align-items:center;gap:7px;}
+.field label i{color:var(--card);font-size:12px;}
+.input-shell{position:relative;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.32);border-radius:14px;transition:all .25s cubic-bezier(.4,0,.2,1);overflow:hidden;backdrop-filter:blur(6px);}
+.input-shell::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.08),transparent);pointer-events:none;}
+.input-shell:focus-within{border-color:var(--card);background:rgba(255,255,255,.22);box-shadow:0 0 0 4px rgba(209,237,211,.22),0 8px 24px rgba(0,0,0,.2);}
+.input-shell select,.input-shell input{width:100%;padding:14px 16px;background:transparent;border:none;outline:none;font-size:14px;font-weight:600;color:#fff;font-family:inherit;position:relative;z-index:1;}
+.input-shell select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:44px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D1EDD3' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 15px center;background-size:16px;}
+.input-shell select option{background:#3F4E3B;color:#fff;padding:12px;font-weight:600;}
+.input-shell input::placeholder{color:rgba(255,255,255,.5);font-weight:500;}
+.input-shell .toggle-pw{position:absolute;top:50%;right:8px;transform:translateY(-50%);width:38px;height:38px;border-radius:10px;border:none;background:rgba(255,255,255,.1);color:rgba(255,255,255,.85);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:2;}
+.input-shell .toggle-pw:hover{background:rgba(255,255,255,.24);color:#fff;transform:translateY(-50%) scale(1.06);}
+.input-shell .toggle-pw:active{transform:translateY(-50%) scale(.94);}
+.caps-warn{display:none;margin-top:8px;font-size:11px;font-weight:700;color:#FFD08A;align-items:center;gap:6px;text-shadow:0 1px 4px rgba(0,0,0,.6);}
+.caps-warn.show{display:flex;animation:shake .35s;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+.err-msg{display:none;margin-bottom:16px;padding:11px 14px;background:rgba(179,38,30,.22);border:1.5px solid rgba(255,120,120,.5);border-left:4px solid #ff6b6b;border-radius:12px;color:#FFE5E5;font-size:12.5px;font-weight:700;align-items:center;gap:9px;backdrop-filter:blur(8px);text-shadow:0 1px 4px rgba(0,0,0,.5);}
+.err-msg.show{display:flex;animation:slideDown .3s cubic-bezier(.22,1,.36,1);}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.err-msg i{font-size:15px;flex-shrink:0;}
+.submit-btn{width:100%;padding:15px 18px;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);color:#fff;font-size:14.5px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 12px 28px rgba(63,78,59,.5),inset 0 1px 0 rgba(255,255,255,.25);transition:all .25s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;margin-top:6px;font-family:inherit;}
+.submit-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);transition:left .6s;}
+.submit-btn:hover::before{left:100%;}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(63,78,59,.6);}
+.submit-btn:active{transform:translateY(0) scale(.98);}
+.submit-btn:disabled{cursor:not-allowed;opacity:.75;background:linear-gradient(135deg,#5a6a56 0%,#3a4536 100%);}
+.submit-btn .spinner{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin .7s linear infinite;display:none;}
+.submit-btn.loading .spinner{display:block;}
+.submit-btn.loading .btn-icon{display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.card-footer{margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.15);text-align:center;position:relative;z-index:2;}
+.card-footer .secure-line{font-size:11px;color:rgba(255,255,255,.75);font-weight:700;letter-spacing:.6px;display:flex;align-items:center;justify-content:center;gap:7px;text-shadow:0 1px 6px rgba(0,0,0,.5);}
+.card-footer .secure-line i{color:var(--card);font-size:12px;}
+.card-footer .version{margin-top:8px;font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1px;font-weight:600;}
+.page-footer{position:fixed;bottom:0;left:0;width:100%;padding:10px 20px;text-align:center;font-size:11px;letter-spacing:.5px;color:rgba(255,255,255,.7);text-shadow:0 1px 6px rgba(0,0,0,.7);background:linear-gradient(180deg,transparent,rgba(0,0,0,.4));z-index:5;}
+.page-footer .brand{color:var(--card);font-weight:700;}
+.shake{animation:cardShake .5s cubic-bezier(.36,.07,.19,.97) both;}
+@keyframes cardShake{10%,90%{transform:translateX(-2px);}20%,80%{transform:translateX(4px);}30%,50%,70%{transform:translateX(-7px);}40%,60%{transform:translateX(7px);}}
+.success-overlay{position:fixed;inset:0;z-index:100;background:rgba(31,42,29,.85);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;flex-direction:column;gap:22px;animation:fadeIn .3s;}
+.success-overlay.show{display:flex;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.success-overlay .tick{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--success),#3d6339);display:flex;align-items:center;justify-content:center;color:#fff;font-size:46px;box-shadow:0 0 0 0 rgba(78,124,74,.7);animation:tickPop .6s cubic-bezier(.22,1.6,.36,1),tickPulse 1.6s .6s infinite;}
+@keyframes tickPop{from{transform:scale(0);}to{transform:scale(1);}}
+@keyframes tickPulse{0%{box-shadow:0 0 0 0 rgba(78,124,74,.7);}100%{box-shadow:0 0 0 30px rgba(78,124,74,0);}}
+.success-overlay .msg{color:#fff;font-size:15px;font-weight:700;letter-spacing:1px;text-shadow:0 2px 12px rgba(0,0,0,.6);}
+
+/* ============================================================
+   DASHBOARD STYLES
+   ============================================================ */
+.brand-logo-tl{position:fixed;top:0;left:0;z-index:160;line-height:0;pointer-events:none;}
+.brand-logo-tl img{width:86px;height:86px;object-fit:contain;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45));}
+.brand-logo-tl .logo-fallback-tl{width:86px;height:86px;background:var(--primary);color:#fff;display:none;align-items:center;justify-content:center;font-weight:900;font-size:26px;letter-spacing:1px;}
+.left-section{width:38%;height:100vh;position:relative;z-index:1;}
+.right-section{width:62%;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;padding:20px;overflow-y:auto;}
+.right-section::-webkit-scrollbar{width:5px;}
+.right-section::-webkit-scrollbar-thumb{background:rgba(209,237,211,.5);border-radius:5px;}
+.header-info{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;color:#fff;margin-bottom:22px;gap:14px;text-align:center;flex-shrink:0;}
+.header-text{text-align:center;}
+.header-text h1{font-size:22px;font-weight:800;letter-spacing:1px;line-height:1.25;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.7);}
+.header-text h1 .accent{color:var(--card);}
+.header-text .subtitle{font-size:11.5px;letter-spacing:3px;color:#fff;display:block;margin-top:5px;text-shadow:0 0 10px rgba(0,0,0,.9);font-weight:700;}
+.header-text .branch-info{font-size:13px;color:var(--card);margin-top:6px;font-weight:700;letter-spacing:.5px;text-shadow:0 2px 6px rgba(0,0,0,.85);}
+.icon-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 24px;width:100%;max-width:440px;margin-top:6px;justify-items:center;}
+.circle-item{position:relative;width:104px;height:104px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .25s, box-shadow .25s, border-color .25s;box-shadow:0 6px 20px rgba(0,0,0,.35);border:3px solid rgba(255,255,255,.9);flex-shrink:0;}
+.circle-item:hover{transform:translateY(-6px) scale(1.08);box-shadow:0 12px 28px rgba(92,112,87,.55);border-color:var(--card);}
+.circle-item:active{transform:scale(.95);}
+.circle-item .badge-cnt{position:absolute;top:2px;right:2px;background:var(--danger);color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:10px;min-width:20px;text-align:center;border:2px solid #fff;animation:pulse 1.6s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
+.circle-content{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:8px;text-align:center;}
+.circle-content i.fallback-icon{font-size:26px;color:var(--primary);margin-bottom:4px;}
+.circle-content .menu-icon{width:44px;height:44px;object-fit:contain;margin-bottom:4px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.12));}
+.circle-content span{font-size:9.5px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;line-height:1.15;}
+.top-bar{position:fixed;top:0;right:0;padding:12px 20px;display:flex;justify-content:flex-end;align-items:center;z-index:150;pointer-events:none;gap:10px;}
+.top-bar > *{pointer-events:auto;}
+.top-icon-btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.95);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:.15s;cursor:pointer;}
+.top-icon-btn:hover{transform:scale(1.08);background:#fff;}
+.top-icon-btn .badge-cnt{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:10px;min-width:20px;text-align:center;border:2px solid #fff;}
+.footer{position:fixed;bottom:0;left:0;width:100%;color:#fff;padding:7px 20px;font-size:11.5px;letter-spacing:.5px;z-index:100;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,transparent,rgba(31,42,29,.75));text-shadow:0 1px 4px rgba(0,0,0,.9);}
+.footer .brand{color:var(--card);font-weight:700;}
+.db-status{position:fixed;bottom:44px;left:16px;z-index:120;padding:4px 11px;border-radius:20px;font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.db-status.local{background:#FEF3C7;color:#92400E;}
+.db-status.firebase{background:#D1FAE5;color:#065F46;}
+.db-status::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;}
+.section{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);display:none;z-index:200;}
+.section.active{display:block;animation:secIn .22s ease-out;}
+@keyframes secIn{from{opacity:0;transform:scale(.98);}to{opacity:1;transform:scale(1);}}
+.section-shell{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.module-header{display:flex;align-items:center;gap:14px;padding:13px 20px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);border-bottom:3px solid var(--card);flex-shrink:0;box-shadow:0 2px 12px rgba(31,42,29,.22);position:relative;z-index:10;}
+.back-btn{background:rgba(255,255,255,.16);border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .22s cubic-bezier(.4,0,.2,1);flex-shrink:0;position:relative;overflow:hidden;}
+.back-btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,.3);border-radius:50%;transform:translate(-50%,-50%);transition:width .35s,height .35s;}
+.back-btn:hover::before{width:120px;height:120px;}
+.back-btn:hover{transform:translateX(-3px) scale(1.06);background:rgba(255,255,255,.28);}
+.back-btn i{position:relative;z-index:1;}
+.module-title{font-size:18px;font-weight:800;letter-spacing:.5px;flex:1;text-align:center;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:42px;}
+.module-title i{color:var(--card);margin-right:8px;}
+.content{flex:1;padding:18px;overflow-y:auto;background:var(--bg);}
+.content::-webkit-scrollbar{width:8px;}
+.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px;}
+.tabs{display:flex;gap:3px;border-bottom:2px solid var(--border);margin-bottom:16px;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:10px 15px;font-size:12.5px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;transition:.15s;display:flex;align-items:center;gap:7px;background:none;}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary);}
+.tab .cnt{padding:1px 7px;background:var(--soft);color:var(--muted);border-radius:10px;font-size:10.5px;font-weight:800;}
+.tab.active .cnt{background:var(--card);color:var(--primary);}
+.card{background:var(--surface);border-radius:14px;border:1px solid var(--border);box-shadow:0 2px 10px rgba(31,42,29,.06);padding:18px;margin-bottom:16px;}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.card-head h3{font-size:15px;font-weight:800;color:var(--primary);display:flex;align-items:center;gap:9px;}
+.card-head h3 i{color:var(--secondary);}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;font-weight:700;font-size:13px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);transition:all .15s;white-space:nowrap;line-height:1;cursor:pointer;}
+.btn:hover{background:var(--card);border-color:var(--secondary);transform:translateY(-1px);box-shadow:0 3px 10px rgba(31,42,29,.08);}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+.btn-primary:hover{background:var(--primary-dark);border-color:var(--primary-dark);}
+.btn-success{background:var(--success);color:#fff;border-color:var(--success);}
+.btn-danger{background:var(--danger);color:#fff;border-color:var(--danger);}
+.btn-danger:hover{background:var(--danger-dark);}
+.btn-warn{background:var(--warn);color:#fff;border-color:var(--warn);}
+.btn-warn:hover{background:var(--warn-dark);}
+.btn-sm{padding:6px 11px;font-size:11.5px;border-radius:8px;}
+.btn-xs{padding:4px 8px;font-size:10.5px;border-radius:6px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:18px;}
+.stat{background:var(--surface);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;border-left:5px solid var(--primary);box-shadow:0 2px 10px rgba(31,42,29,.06);transition:.2s;}
+.stat:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(31,42,29,.12);}
+.stat.green{border-left-color:var(--secondary);}
+.stat.red{border-left-color:var(--danger);}
+.stat.amber{border-left-color:var(--warn);}
+.stat-icon{width:48px;height:48px;border-radius:12px;background:var(--card);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.stat.red .stat-icon{background:rgba(179,38,30,.1);color:var(--danger);}
+.stat.amber .stat-icon{background:rgba(199,126,41,.14);color:var(--warn-dark);}
+.stat-val{font-size:21px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;}
+.stat-lbl{font-size:10.5px;color:var(--muted);font-weight:700;margin-top:3px;text-transform:uppercase;letter-spacing:.4px;}
+.tw{overflow:auto;border-radius:12px;border:1px solid var(--border);background:var(--surface);max-height:calc(100vh - 340px);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:var(--primary);color:#fff;padding:11px 13px;text-align:left;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;position:sticky;top:0;z-index:2;border-bottom:2px solid var(--primary-dark);}
+tbody td{padding:11px 13px;border-bottom:1px solid var(--soft);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--bg);}
+td.mono{font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:var(--primary);}
+td.actions{text-align:center;white-space:nowrap;}
+td.actions .btn{margin:0 2px;}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;}
+.b-green{background:var(--card);color:var(--primary-dark);}
+.b-red{background:rgba(179,38,30,.12);color:var(--danger);}
+.b-amber{background:rgba(199,126,41,.14);color:var(--warn-dark);}
+.b-blue{background:var(--soft);color:var(--primary);}
+.b-gray{background:#EDEFEC;color:var(--muted);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
+.fg label .req{color:var(--danger);margin-left:2px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13.5px;outline:none;background:var(--surface);color:var(--text);transition:.15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--secondary);box-shadow:0 0 0 3px rgba(137,164,130,.28);}
+.fg input[readonly]{background:#F1F5F1;color:var(--muted);cursor:not-allowed;}
+.fg textarea{min-height:72px;resize:vertical;font-family:inherit;}
+.filter-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.filter-bar input,.filter-bar select{padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;outline:none;background:var(--surface);transition:.15s;min-width:150px;}
+.filter-bar input{flex:1;min-width:180px;}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--secondary);box-shadow:0 0 0 3px rgba(137,164,130,.28);}
+.empty{padding:50px 20px;text-align:center;color:var(--muted);}
+.empty i{font-size:42px;opacity:.35;display:block;margin-bottom:12px;color:var(--secondary);}
+.empty .t{font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
+.empty .d{font-size:12.5px;}
+.modal-ov{position:fixed;inset:0;background:rgba(31,42,29,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
+.modal-ov.active{opacity:1;visibility:visible;}
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:600px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;transform:translateY(15px) scale(.97);transition:transform .22s;box-shadow:0 24px 60px rgba(31,42,29,.4);}
+.modal-ov.active .modal{transform:translateY(0) scale(1);}
+.modal.wide{max-width:900px;}
+.modal.xwide{max-width:1100px;}
+.modal-hd{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;}
+.modal-hd h3{font-size:16px;font-weight:800;}
+.modal-hd .close{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.18);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;transition:.15s;cursor:pointer;}
+.modal-hd .close:hover{background:rgba(255,255,255,.32);transform:rotate(90deg);}
+.modal-bd{flex:1;overflow-y:auto;padding:20px;background:#F3F7F3;}
+.modal-ft{padding:13px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;background:var(--surface);flex-shrink:0;flex-wrap:wrap;}
+#toastRoot{position:fixed;top:80px;right:18px;z-index:2000;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+.toast{background:var(--surface);border-radius:12px;padding:13px 18px;min-width:280px;max-width:400px;box-shadow:0 12px 30px rgba(31,42,29,.18);border-left:4px solid var(--primary);display:flex;align-items:center;gap:11px;font-size:13px;font-weight:600;color:var(--text);animation:slideIn .28s cubic-bezier(.4,0,.2,1);pointer-events:auto;}
+.toast.success{border-left-color:var(--success);}
+.toast.error{border-left-color:var(--danger);}
+.toast.warn{border-left-color:var(--warn);}
+.toast i{font-size:17px;flex-shrink:0;}
+.toast.success i{color:var(--success);}
+.toast.error i{color:var(--danger);}
+.toast.warn i{color:var(--warn);}
+.toast.info i{color:var(--primary);}
+@keyframes slideIn{from{transform:translateX(120%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes slideOut{to{transform:translateX(120%);opacity:0;}}
+.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:13px;}
+.pf{background:var(--bg);border:1px solid var(--soft);border-radius:11px;padding:11px 13px;}
+.pf-lbl{font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.pf-val{font-size:13px;font-weight:700;word-break:break-word;min-height:18px;}
+.recent{max-height:280px;overflow-y:auto;}
+.recent .item{padding:9px 0;border-bottom:1px solid var(--soft);font-size:12.5px;display:flex;gap:12px;align-items:flex-start;}
+.recent .item:last-child{border-bottom:none;}
+.recent .item .t{font-family:'Courier New',monospace;font-weight:800;color:var(--primary);font-size:11.5px;flex-shrink:0;min-width:52px;}
+.alert-feed{display:grid;grid-template-columns:1fr;gap:14px;}
+.alert-card{background:var(--surface);border-radius:14px;border:1px solid var(--border);border-left:6px solid var(--danger);padding:16px 18px;box-shadow:0 2px 10px rgba(31,42,29,.06);transition:.2s;animation:alertIn .35s ease-out;}
+.alert-card:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(31,42,29,.12);}
+.alert-card.amber{border-left-color:var(--warn);}
+.alert-card.blue{border-left-color:var(--primary);}
+.alert-card.green{border-left-color:var(--success);}
+.alert-card.gray{border-left-color:#94a3b8;opacity:.85;}
+@keyframes alertIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.alert-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.alert-code{font-family:'Courier New',monospace;font-weight:800;color:var(--danger);font-size:14px;letter-spacing:1px;}
+.alert-cat{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;background:rgba(179,38,30,.12);color:var(--danger);font-size:11px;font-weight:800;text-transform:uppercase;}
+.alert-cat.cardiac{background:rgba(179,38,30,.12);color:var(--danger);}
+.alert-cat.stroke{background:rgba(139,92,246,.14);color:#7c3aed;}
+.alert-cat.trauma{background:rgba(199,126,41,.16);color:var(--warn-dark);}
+.alert-cat.accident{background:rgba(199,126,41,.16);color:var(--warn-dark);}
+.alert-cat.respiratory{background:var(--soft);color:var(--primary);}
+.alert-cat.pediatric{background:var(--card);color:var(--primary-dark);}
+.alert-cat.obstetric{background:rgba(236,72,153,.13);color:#DB2777;}
+.alert-cat.general{background:#EDEFEC;color:var(--muted);}
+.alert-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px 22px;margin-bottom:14px;}
+.alert-grid .cell{font-size:12.5px;}
+.alert-grid .cell .k{font-size:10.5px;color:var(--secondary);text-transform:uppercase;font-weight:800;letter-spacing:.4px;margin-bottom:2px;}
+.alert-grid .cell .v{font-weight:700;color:var(--text);}
+.alert-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding-top:10px;border-top:1px dashed var(--soft);}
+.bed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:9px;}
+.bed-tile{padding:10px 8px;border-radius:11px;text-align:center;font-size:11px;font-weight:800;border:1.5px solid;cursor:pointer;transition:.15s;position:relative;}
+.bed-tile .bn{font-size:14px;font-weight:900;font-family:'Courier New',monospace;letter-spacing:.5px;margin-bottom:3px;}
+.bed-tile .wt{font-size:9.5px;opacity:.85;font-weight:700;letter-spacing:.3px;}
+.bed-tile.free{background:var(--card);border-color:var(--primary);color:var(--primary-dark);}
+.bed-tile.free:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(78,124,74,.28);background:#B9E2BD;}
+.bed-tile.occ{background:rgba(179,38,30,.08);border-color:var(--danger);color:var(--danger-dark);cursor:not-allowed;opacity:.75;}
+.bed-tile.res{background:rgba(199,126,41,.1);border-color:var(--warn);color:var(--warn-dark);cursor:not-allowed;opacity:.85;}
+.bed-tile.maint{background:#EEF1EE;border-color:var(--muted);color:var(--muted);cursor:not-allowed;opacity:.7;}
+.bed-tile.sel{background:var(--primary) !important;color:#fff !important;border-color:var(--primary-dark) !important;box-shadow:0 0 0 4px rgba(92,112,87,.22);}
+.bed-tile.sel .bn,.bed-tile.sel .wt{color:#fff;}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:12px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.legend span::before{content:'';width:11px;height:11px;border-radius:3px;background:currentColor;opacity:.7;}
+.legend .lg-free{color:var(--primary);}
+.legend .lg-occ{color:var(--danger);}
+.legend .lg-res{color:var(--warn);}
+.legend .lg-maint{color:var(--muted);}
+.doc-card{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+.doc{padding:14px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);transition:.15s;}
+.doc:hover{border-color:var(--primary);box-shadow:0 8px 22px rgba(92,112,87,.14);transform:translateY(-3px);}
+.doc.hdr{background:linear-gradient(135deg,var(--card),var(--surface));}
+.doc-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;margin-bottom:10px;}
+.doc-name{font-weight:800;font-size:13.5px;margin-bottom:3px;}
+.doc-spec{font-size:11.5px;color:var(--primary);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px;}
+.doc-meta{font-size:11.5px;color:var(--muted);display:flex;justify-content:space-between;margin-top:6px;}
+
+@media (max-width:900px){
+  .left-section{display:none;}
+  .right-section{width:100%;padding:100px 12px 60px;}
+  .header-text h1{font-size:18px;}
+  .header-text .subtitle{font-size:10px;letter-spacing:2px;}
+  .icon-grid{gap:14px 16px;max-width:340px;}
+  .circle-item{width:86px;height:86px;}
+  .circle-content .menu-icon{width:36px;height:36px;}
+  .circle-content span{font-size:8.5px;}
+  .top-icon-btn{width:38px;height:38px;font-size:14px;}
+  .brand-logo-tl img{width:70px;height:70px;}
+}
+@media (max-width:480px){
+  .auth-wrapper{padding:16px;}
+  .glass-card{padding:30px 22px 24px;border-radius:20px;}
+  .logo-wrap{width:82px;height:82px;}
+  .logo-wrap img{width:66px;height:66px;}
+  .brand-head h1{font-size:16.5px;}
+  .brand-head .subtitle{font-size:10px;letter-spacing:2.5px;}
+  .input-shell select,.input-shell input{font-size:13.5px;padding:13px 14px;}
+  .submit-btn{font-size:13px;padding:14px;}
+  .icon-grid{max-width:300px;gap:12px 14px;}
+  .circle-item{width:78px;height:78px;}
+  .circle-content .menu-icon{width:32px;height:32px;}
+  .circle-content span{font-size:7.5px;letter-spacing:0;}
+  .module-title{font-size:15px;}
+}
+@media (max-height:640px){
+  .glass-card{padding:26px 24px 20px;}
+  .logo-wrap{width:70px;height:70px;margin-bottom:12px;}
+  .logo-wrap img{width:56px;height:56px;}
+  .brand-head{margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     AUTH SCREEN
+     ============================================================ -->
+<div id="authScreen">
+  <div class="bg-layer"></div>
+  <div class="bg-overlay"></div>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+
+  <div class="auth-wrapper">
+    <div class="glass-card" id="glassCard">
+      <div class="brand-head">
+        <div class="logo-wrap">
+          <img src="logo.png" alt="Civil Hospital Khairpur"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="fallback">CHK</div>
+        </div>
+        <h1>Civil Hospital Khairpur<br><span class="accent">Secure Access Portal</span></h1>
+        <span class="subtitle">AUTHORIZED PERSONNEL ONLY</span>
+        <div class="divider"></div>
+      </div>
+
+      <form class="auth-form" id="authForm" autocomplete="off">
+        <div class="err-msg" id="errMsg">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span id="errText">Invalid password</span>
+        </div>
+
+        <div class="field">
+          <label for="role"><i class="fas fa-user-shield"></i> Login As</label>
+          <div class="input-shell">
+            <select id="role" required>
+              <option value="" disabled selected>— Select Your Role —</option>
+              <option value="admin">🏥 Hospital Administration</option>
+              <option value="reception">📋 Reception Staff</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password"><i class="fas fa-lock"></i> Access Password</label>
+          <div class="input-shell">
+            <input type="password" id="password" placeholder="Enter your password" required autocomplete="off" spellcheck="false">
+            <button type="button" class="toggle-pw" id="togglePw" title="Show / Hide" aria-label="Toggle password">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <div class="caps-warn" id="capsWarn">
+            <i class="fas fa-exclamation-circle"></i> Caps Lock is ON
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span class="spinner"></span>
+          <i class="fas fa-sign-in-alt btn-icon"></i>
+          <span class="btn-text">Access Portal</span>
+        </button>
+      </form>
+
+      <div class="card-footer">
+        <div class="secure-line"><i class="fas fa-shield-alt"></i> Protected by CHK Security Layer</div>
+        <div class="version">v1.0 · Civil Hospital Khairpur</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    © <span id="year"></span> <span class="brand">Civil Hospital Khairpur</span> · All rights reserved
+  </div>
+
+  <div class="success-overlay" id="successOverlay">
+    <div class="tick"><i class="fas fa-check"></i></div>
+    <div class="msg" id="successMsg">Access Granted · Redirecting…</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     DASHBOARD SCREEN
+     ============================================================ -->
+<div id="dashboardScreen">
+
+  <div class="brand-logo-tl">
+    <img src="logo.jpg" alt="Civil Hospital Khairpur" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+    <div class="logo-fallback-tl">CHK</div>
+  </div>
+
+  <div class="top-bar">
+    <button class="top-icon-btn" onclick="App.showNotifications()" title="Notifications">
+      <i class="fas fa-bell"></i>
+      <span class="badge-cnt" id="notifBadge" style="display:none;">0</span>
+    </button>
+    <button class="top-icon-btn" onclick="App.logout()" title="Logout">
+      <i class="fas fa-sign-out-alt"></i>
+    </button>
+  </div>
+
+  <div class="left-section"></div>
+
+  <div class="right-section" id="mainDashboard">
+    <div class="header-info">
+      <div class="header-text">
+        <h1>Civil Hospital Khairpur<br><span class="accent">Staff &amp; Reception</span></h1>
+        <span class="subtitle">EMERGENCY &amp; RESOURCE CONTROL</span>
+        <div class="branch-info" id="activeBranchInfo">Civil Hospital Khairpur · Khairpur, Sindh</div>
+      </div>
+    </div>
+    <div class="icon-grid" id="iconGrid"></div>
+  </div>
+
+  <div class="footer">
+    <span>Civil Hospital Khairpur &middot; Staff &amp; Reception Management</span>
+    <span class="brand" id="footerDateTime"></span>
+  </div>
+
+  <div class="db-status" id="dbStatus">
+    <span id="dbStatusText">Connecting…</span>
+  </div>
+
+  <!-- ==================== SECTIONS ==================== -->
+  <div id="section-feed" class="section"><div class="section-shell"><div class="module-header"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-satellite-dish"></i> Live Incoming Patient Feed</div></div><div class="content" id="content-feed"></div></div></div>
+  <div id="section-allocation" class="section"><div class="section-shell"><div class="module-header"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-clipboard-list"></i> Resource Allocation &amp; Dispatch</div></div><div class="content" id="content-allocation"></div></div></div>
+  <div id="section-beds" class="section"><div class="section-shell"><div class="module-header"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-bed"></i> Bed Management</div></div><div class="content" id="content-beds"></div></div></div>
+  <div id="section-doctors" class="section"><div class="section-shell"><div class="module-header"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-user-md"></i> Doctor Roster &amp; Shifts</div></div><div class="content" id="content-doctors"></div></div></div>
+  <div id="section-ambulances" class="section"><div class="section-shell"><div class="module-header"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-ambulance"></i> Ambulance Fleet</div></div><div class="content" id="content-ambulances"></div></div></div>
+  <div id="section-patients" class="section"><div class="section-shell"><div class="module-header"><button class="back-btn" onclick="playClick();App.goBack()"><i class="fas fa-arrow-left"></i></button><div class="module-title"><i class="fas fa-hospital-user"></i> Patient Records</div></div><div class="content" id="content-patients"></div></div></div>
+
+  <div class="modal-ov" id="modalRoot"></div>
+  <div id="toastRoot"></div>
+</div>
+
+<!-- ============================================================
+     FIREBASE SDK (compat) + APP SCRIPT
+     ============================================================ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+/* ============================================================
+   FIREBASE CONFIG
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAVbIXp5qg6TqHExaOsIWL5QAHgJGZnElA",
+  authDomain: "hospitalsystem-79d21.firebaseapp.com",
+  databaseURL: "https://hospitalsystem-79d21-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "hospitalsystem-79d21",
+  storageBucket: "hospitalsystem-79d21.firebasestorage.app",
+  messagingSenderId: "612665716882",
+  appId: "1:612665716882:web:b5d9d2bbca989a9a0bf64b"
+};
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
+const pad = n => String(n).padStart(2,'0');
+const fDate = s => { if(!s) return '—'; const d=new Date(s); return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); };
+const fTime = s => { if(!s) return ''; const d=new Date(s); return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:true}); };
+const fDT = s => fDate(s)+' '+fTime(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = prefix => prefix+'-'+Date.now().toString(36).toUpperCase().slice(-6)+Math.random().toString(36).slice(2,4).toUpperCase();
+const minutesFrom = s => Math.round((Date.now() - new Date(s).getTime())/60000);
+
+/* ============================================================
+   SOUND
+   ============================================================ */
+let AC=null;
+const initAudio = () => { if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } };
+const tone = (f1,f2,dur,vol=0.12) => {
+  initAudio(); if(!AC) return;
+  try{
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.connect(g); g.connect(AC.destination); o.type='sine';
+    o.frequency.setValueAtTime(f1,AC.currentTime);
+    o.frequency.exponentialRampToValueAtTime(f2,AC.currentTime+dur);
+    g.gain.setValueAtTime(vol,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+dur);
+    o.start(); o.stop(AC.currentTime+dur);
+  }catch(e){}
+};
+const playClick = () => tone(800,400,.07,.15);
+const sSuccess = () => { tone(660,880,.11,.15); setTimeout(()=>tone(880,1100,.09,.15),90); };
+const sError = () => tone(300,200,.14,.18);
+const sWarn = () => tone(500,400,.12,.15);
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+const Toast = {
+  show(msg, type='info', duration=3000){
+    const root = $('#toastRoot'); if(!root) return;
+    const el = document.createElement('div');
+    el.className = 'toast '+type;
+    const icons = {success:'fa-check-circle',error:'fa-times-circle',warn:'fa-exclamation-triangle',info:'fa-info-circle'};
+    el.innerHTML = `<i class="fas ${icons[type]}"></i><span>${esc(msg)}</span>`;
+    root.appendChild(el);
+    if(type==='success') sSuccess(); else if(type==='error') sError(); else if(type==='warn') sWarn();
+    setTimeout(()=>{ el.style.animation='slideOut .25s forwards'; setTimeout(()=>el.remove(),250); }, duration);
+  }
+};
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+const Modal = {
+  _esc:null, _onClose:null,
+  open({title, body, footer, wide=false, xwide=false, onClose}){
+    this.close(true);
+    const root = $('#modalRoot');
+    root.innerHTML = `
+      <div class="modal ${xwide?'xwide':wide?'wide':''}">
+        <div class="modal-hd"><h3>${esc(title||'')}</h3><button class="close" data-close><i class="fas fa-times"></i></button></div>
+        <div class="modal-bd"></div>
+        ${footer?'<div class="modal-ft"></div>':''}
+      </div>`;
+    const bd = root.querySelector('.modal-bd');
+    if(typeof body==='string') bd.innerHTML = body; else if(body instanceof Node) bd.appendChild(body);
+    if(footer){
+      const ft = root.querySelector('.modal-ft');
+      if(Array.isArray(footer)) footer.forEach(x=>ft.appendChild(x));
+      else if(typeof footer==='string') ft.innerHTML = footer;
+      else ft.appendChild(footer);
+    }
+    root.classList.add('active');
+    root.querySelector('[data-close]').onclick = () => this.close();
+    root.onclick = e => { if(e.target===root) this.close(); };
+    this._esc = e => { if(e.key==='Escape') this.close(); };
+    document.addEventListener('keydown', this._esc);
+    this._onClose = onClose;
+  },
+  close(silent){
+    const root = $('#modalRoot');
+    if(!root.classList.contains('active')) return;
+    root.classList.remove('active');
+    if(this._esc) document.removeEventListener('keydown', this._esc);
+    if(!silent && typeof this._onClose==='function') this._onClose();
+    setTimeout(()=>{ if(!root.classList.contains('active')) root.innerHTML=''; }, 220);
+  }
+};
+
+/* ============================================================
+   FIRESTORE → replaced with FIREBASE REALTIME DATABASE
+   ------------------------------------------------------------
+   DataStore keeps a mirror of the local DB in `DB.data` and
+   pushes every write straight to Firebase. Live `onValue`
+   listeners keep the UI in sync when other clients change
+   the database.
+   ============================================================ */
+const DataStore = {
+  mode: 'local',        /* 'firebase' when SDK is available */
+  app: null,
+  db: null,
+  ready: false,
+  _listeners: [],
+
+  init(){
+    try{
+      if(!window.firebase || !firebase.initializeApp){
+        console.warn('[DataStore] Firebase SDK not loaded');
+        return false;
+      }
+      this.app = firebase.apps && firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+      this.db  = firebase.database();
+      this.mode = 'firebase';
+      this.ready = true;
+      console.log('[DataStore] Firebase Realtime DB connected');
+      return true;
+    }catch(e){
+      console.warn('[DataStore] Firebase init failed, running local:', e.message);
+      this.mode = 'local';
+      this.db = null;
+      return false;
+    }
+  },
+
+  ref(path){ return this.db.ref(path); },
+
+  /* ---------- WRITES ---------- */
+  upsert(collection, record){
+    if(this.mode!=='firebase' || !record || !record.id) return;
+    try{ this.ref(collection+'/'+record.id).set(record); }
+    catch(e){ console.warn('[DataStore] upsert failed', e); }
+  },
+  remove(collection, id){
+    if(this.mode!=='firebase' || !id) return;
+    try{ this.ref(collection+'/'+id).remove(); }
+    catch(e){ console.warn('[DataStore] remove failed', e); }
+  },
+  upsertHospital(record){
+    if(this.mode!=='firebase' || !record) return;
+    try{ this.ref('hospital/info').set(record); }
+    catch(e){ console.warn('[DataStore] hospital upsert failed', e); }
+  },
+
+  /* ---------- LIVE LISTENERS ---------- */
+  subscribeToRealtime(onChange){
+    if(this.mode!=='firebase') return;
+    const collections = ['alerts','beds','doctors','ambulances','patients','notifications','activity'];
+    collections.forEach(col=>{
+      const handler = snap => {
+        const val = snap.val();
+        if(val && typeof val === 'object'){
+          DB.data[col] = Object.values(val);
+        } else {
+          DB.data[col] = [];
+        }
+        onChange && onChange(col);
+      };
+      this.ref(col).on('value', handler, err => console.warn('[DataStore] onValue error for', col, err));
+    });
+    /* Hospital info */
+    this.ref('hospital/info').on('value', snap=>{
+      DB.data.hospital = snap.val() || null;
+      onChange && onChange('hospital');
+    });
+  }
+};
+
+/* ============================================================
+   DATA LAYER (local cache + Firebase write-through)
+   ============================================================ */
+const DB = {
+  _key: 'hospital_mgmt_v3_chk',
+  data: {
+    hospital: null, alerts: [], beds: [], doctors: [],
+    ambulances: [], patients: [], notifications: [], activity: []
+  },
+  load(){
+    try{
+      const raw = localStorage.getItem(this._key);
+      if(raw){ const parsed = JSON.parse(raw); Object.keys(parsed).forEach(k => { this.data[k] = parsed[k]; }); return true; }
+    }catch(e){ console.warn('DB load error', e); }
+    return false;
+  },
+  save(){
+    try{ localStorage.setItem(this._key, JSON.stringify(this.data)); return true; }
+    catch(e){ console.warn('DB save error', e); return false; }
+  },
+  add(collection, record){
+    const rec = {...record, id: record.id || uid(collection.slice(0,3).toUpperCase()), createdAt: record.createdAt || new Date().toISOString()};
+    if(!this.data[collection]) this.data[collection] = [];
+    this.data[collection].unshift(rec);
+    this.logActivity(`New ${collection.slice(0,-1)} — ${rec.id}`);
+    this.save();
+    DataStore.upsert(collection, rec);   /* ← Firebase write-through */
+    return rec;
+  },
+  update(collection, id, patch){
+    const idx = this.data[collection].findIndex(x=>x.id===id);
+    if(idx<0) return null;
+    this.data[collection][idx] = {...this.data[collection][idx], ...patch, updatedAt:new Date().toISOString()};
+    this.save();
+    DataStore.upsert(collection, this.data[collection][idx]);  /* ← Firebase */
+    return this.data[collection][idx];
+  },
+  remove(collection, id){
+    const idx = this.data[collection].findIndex(x=>x.id===id);
+    if(idx<0) return false;
+    this.data[collection].splice(idx,1);
+    this.save();
+    DataStore.remove(collection, id);   /* ← Firebase */
+    return true;
+  },
+  find(collection, id){ return (this.data[collection]||[]).find(x=>x.id===id); },
+  logActivity(text){
+    const rec = { id: uid('ACT'), time:new Date().toISOString(), text };
+    this.data.activity.unshift(rec);
+    if(this.data.activity.length>400) this.data.activity.length = 400;
+    DataStore.upsert('activity', rec);
+  },
+  pushNotification(title, msg, type='info'){
+    const rec = { id:uid('N'), title, msg, type, read:false, time:new Date().toISOString() };
+    this.data.notifications.unshift(rec);
+    if(this.data.notifications.length>200) this.data.notifications.length = 200;
+    this.save();
+    DataStore.upsert('notifications', rec);
+  },
+  unreadCount(){ return this.data.notifications.filter(n => !n.read).length; }
+};
+
+/* ============================================================
+   CONSTANTS
+   ============================================================ */
+const EMERGENCY_CATEGORIES = [
+  {key:'cardiac', label:'Cardiac', icon:'fa-heartbeat'},
+  {key:'stroke', label:'Stroke', icon:'fa-brain'},
+  {key:'trauma', label:'Trauma', icon:'fa-bone'},
+  {key:'accident', label:'Accident', icon:'fa-car-crash'},
+  {key:'respiratory', label:'Respiratory', icon:'fa-lungs'},
+  {key:'pediatric', label:'Pediatric', icon:'fa-baby'},
+  {key:'obstetric', label:'Obstetric', icon:'fa-female'},
+  {key:'general', label:'General', icon:'fa-notes-medical'}
+];
+const SPECIALTIES = ['Cardiologist','Neurologist','Orthopedic','General Surgeon','Gynecologist','Pediatrician','Emergency Medicine','Anesthesiologist','Radiologist','General Physician'];
+const WARDS = ['ICU','CCU','Emergency','General','Surgical','Pediatric','Maternity','Orthopedic'];
+const SHIFTS = ['Morning','Evening','Night'];
+
+const getAlert = id => DB.data.alerts.find(a=>a.id===id);
+const getBed = id => DB.data.beds.find(b=>b.id===id);
+const getDoctor = id => DB.data.doctors.find(d=>d.id===id);
+const getAmbulance = id => DB.data.ambulances.find(a=>a.id===id);
+const catLabel = k => (EMERGENCY_CATEGORIES.find(c=>c.key===k)||{label:k}).label;
+const catIcon = k => (EMERGENCY_CATEGORIES.find(c=>c.key===k)||{icon:'fa-notes-medical'}).icon;
+
+/* ============================================================
+   NAV CONFIG — customized root-folder icons
+   ============================================================ */
+const NAV = [
+  {id:'feed',        label:'Live Feed',    icon:'fa-satellite-dish', iconImg:'live.png'},
+  {id:'allocation',  label:'Allocation',   icon:'fa-clipboard-list', iconImg:'alloc.png'},
+  {id:'beds',        label:'Beds',         icon:'fa-bed',            iconImg:'beds.png'},
+  {id:'doctors',     label:'Doctors',      icon:'fa-user-md',        iconImg:'doctors.png'},
+  {id:'ambulances',  label:'Ambulances',   icon:'fa-ambulance',      iconImg:'ambulance.png'},
+  {id:'patients',    label:'Patients',     icon:'fa-hospital-user',  iconImg:'patients.png'}
+];
+
+/* ============================================================
+   APP
+   ============================================================ */
+const App = {
+  currentView: null,
+  subTab: {},
+  _alloc: {bed:null, doctor:null, ambulance:null},
+  _patientsCache: [],
+
+  async init(){
+    initAudio();
+    DataStore.init();
+    updateDbStatusUI();
+
+    DB.load();
+    /* NOTE: No seed data — Firebase is the single source of truth. */
+    this.renderCircleMenu();
+    this.startClock();
+    this.updateNotifBadge();
+
+    document.addEventListener('keydown', e => {
+      if(e.key==='Escape' && !$('#modalRoot').classList.contains('active')) this.goBack();
+    });
+    setInterval(()=>DB.save(), 30000);
+    setInterval(()=>this.updateNotifBadge(), 8000);
+
+    /* Subscribe to realtime changes */
+    DataStore.subscribeToRealtime(col=>{
+      if(col==='hospital'){
+        const h = DB.data.hospital;
+        if(h && h.name){
+          const el = $('#activeBranchInfo');
+          if(el) el.textContent = (h.name||'') + (h.location ? ' · ' + h.location : '');
+        }
+        return;
+      }
+      /* re-render the current view if it depends on this collection */
+      if(this.currentView && ['alerts','beds','doctors','ambulances','patients','notifications'].includes(col)){
+        this.render(this.currentView);
+      }
+      if(col==='alerts') this.renderCircleMenu();
+      if(col==='notifications') this.updateNotifBadge();
+    });
+  },
+
+  logout(){
+    if(!confirm('Log out and return to the login screen?')) return;
+    try{ sessionStorage.removeItem('chk_auth_session'); }catch(e){}
+    location.reload();
+  },
+
+  updateNotifBadge(){
+    const n = DB.unreadCount();
+    const el = $('#notifBadge');
+    if(!el) return;
+    if(n>0){ el.style.display='block'; el.textContent = n>9?'9+':n; } else el.style.display='none';
+  },
+
+  renderCircleMenu(){
+    const grid = $('#iconGrid'); if(!grid) return;
+    const pending = DB.data.alerts.filter(a=>['PENDING','ACKNOWLEDGED'].includes(a.status)).length;
+    const badges = {feed: pending};
+    grid.innerHTML = NAV.map(n=>`
+      <div class="circle-item" data-nav="${n.id}" onmouseenter="playClick()">
+        <div class="circle-content">
+          <img class="menu-icon" src="${n.iconImg}" alt="${esc(n.label)}"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+          <i class="fas ${n.icon} fallback-icon" style="display:none;"></i>
+          <span>${esc(n.label)}</span>
+        </div>
+        ${badges[n.id]?`<span class="badge-cnt">${badges[n.id]}</span>`:''}
+      </div>`).join('');
+    grid.querySelectorAll('[data-nav]').forEach(el=>{
+      el.onclick = () => { playClick(); this.openSection(el.dataset.nav); };
+    });
+  },
+
+  openSection(id){
+    this.currentView = id;
+    $$('.section').forEach(s=>s.classList.remove('active'));
+    const sec = $('#section-'+id); if(!sec) return;
+    sec.classList.add('active');
+    $('#mainDashboard').style.display = 'none';
+    this.render(id);
+  },
+
+  goBack(){
+    $$('.section').forEach(s=>s.classList.remove('active'));
+    $('#mainDashboard').style.display = 'flex';
+    this.currentView = null;
+    Modal.close(true);
+    this.renderCircleMenu();
+  },
+
+  setSubTab(view, tab){ this.subTab[view] = tab; this.render(view); },
+
+  render(view){
+    const c = $('#content-'+view); if(!c) return;
+    c.scrollTop = 0;
+    try{
+      const r = {
+        feed:       () => this.viewFeed(c),
+        allocation: () => this.viewAllocation(c),
+        beds:       () => this.viewBeds(c),
+        doctors:    () => this.viewDoctors(c),
+        ambulances: () => this.viewAmbulances(c),
+        patients:   () => this.viewPatients(c)
+      }[view];
+      if(r) r();
+    }catch(err){
+      console.error(err);
+      c.innerHTML = `<div class="card"><div class="empty"><i class="fas fa-exclamation-triangle"></i><div class="t">Render error</div><div class="d">${esc(err.message)}</div></div></div>`;
+    }
+  },
+
+  startClock(){
+    const el = $('#footerDateTime'); if(!el) return;
+    const upd = () => {
+      const n = new Date();
+      el.textContent = n.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}) + ' · ' + n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+    };
+    upd(); setInterval(upd,1000);
+  },
+
+  showNotifications(){
+    playClick();
+    const list = DB.data.notifications;
+    const body = list.length ? `
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button class="btn btn-sm" onclick="App.markAllRead()"><i class="fas fa-check-double"></i> Mark all read</button>
+      </div>
+      <div class="recent">
+        ${list.map(n=>`
+          <div class="item" style="padding:12px;background:${n.read?'var(--surface)':'var(--card)'};border-radius:10px;margin-bottom:8px;border:1px solid ${n.read?'var(--soft)':'var(--secondary)'};">
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:13px;margin-bottom:3px;">
+                <i class="fas fa-${n.type==='warn'?'exclamation-triangle':n.type==='error'?'times-circle':n.type==='success'?'check-circle':'info-circle'}" style="color:${n.type==='warn'?'var(--warn)':n.type==='error'?'var(--danger)':n.type==='success'?'var(--success)':'var(--primary)'};margin-right:6px;"></i>
+                ${esc(n.title)}
+              </div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">${esc(n.msg)}</div>
+              <div style="font-size:11px;color:var(--secondary);">${fDT(n.time)}</div>
+            </div>
+          </div>`).join('')}
+      </div>` : `<div class="empty"><i class="fas fa-bell-slash"></i><div class="t">No notifications</div><div class="d">You're all caught up</div></div>`;
+    const footer = document.createElement('div');
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Close'; cBtn.onclick=()=>Modal.close();
+    footer.appendChild(cBtn);
+    Modal.open({title:`Notifications (${list.length})`, body, footer});
+  },
+
+  markAllRead(){
+    DB.data.notifications.forEach(n => n.read = true);
+    DB.save();
+    DB.data.notifications.slice(0,50).forEach(n => DataStore.upsert('notifications', n));
+    this.updateNotifBadge();
+    Modal.close();
+    Toast.show('All notifications marked as read', 'success');
+  },
+
+  /* ============ LIVE FEED ============ */
+  viewFeed(c){
+    const tab = this.subTab['feed'] || 'active';
+    const all = DB.data.alerts;
+    const active = all.filter(a=>['PENDING','ACKNOWLEDGED'].includes(a.status));
+    const assigned = all.filter(a=>['ASSIGNED','EN_ROUTE','ARRIVED'].includes(a.status));
+    c.innerHTML = `
+      <div class="tabs">
+        <button class="tab ${tab==='active'?'active':''}" data-tab="active"><i class="fas fa-bell"></i> Active Alerts <span class="cnt">${active.length}</span></button>
+        <button class="tab ${tab==='assigned'?'active':''}" data-tab="assigned"><i class="fas fa-tasks"></i> In Progress <span class="cnt">${assigned.length}</span></button>
+        <button class="tab ${tab==='all'?'active':''}" data-tab="all"><i class="fas fa-list"></i> All Alerts <span class="cnt">${all.length}</span></button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+        <div style="font-size:12.5px;color:var(--muted);font-weight:700;">
+          <i class="fas fa-circle" style="color:var(--success);animation:pulse 1.5s infinite;font-size:8px;margin-right:6px;"></i> Live sync with Firebase active
+        </div>
+        <button class="btn btn-sm" onclick="App.render('feed')"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+      <div id="feedBody"></div>`;
+    c.querySelectorAll('[data-tab]').forEach(el=>{
+      el.onclick = () => { playClick(); this.setSubTab('feed', el.dataset.tab); };
+    });
+    const body = $('#feedBody');
+    let items = tab==='active'?active : tab==='assigned'?assigned : all;
+
+    if(!items.length){
+      body.innerHTML = `<div class="card"><div class="empty"><i class="fas fa-inbox"></i><div class="t">No alerts in this view</div><div class="d">Incoming alerts from the patient app will appear here live</div></div></div>`;
+      return;
+    }
+    body.innerHTML = `<div class="alert-feed">${items.map(a=>this.alertCardHTML(a)).join('')}</div>`;
+  },
+
+  alertCardHTML(a){
+    const mins = minutesFrom(a.createdAt);
+    const prio = a.priority || 'MEDIUM';
+    const prioClass = prio==='CRITICAL'?'b-red':prio==='HIGH'?'b-amber':'b-blue';
+    const statusClass = {PENDING:'red',ACKNOWLEDGED:'amber',ASSIGNED:'blue',EN_ROUTE:'blue',ARRIVED:'amber',ADMITTED:'green',COMPLETED:'green',CANCELLED:'gray'}[a.status] || 'gray';
+    const cardColor = a.status==='PENDING'?'':a.status==='ACKNOWLEDGED'?'amber':['ASSIGNED','EN_ROUTE'].includes(a.status)?'blue':'gray';
+
+    return `<div class="alert-card ${cardColor}">
+      <div class="alert-head">
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="alert-code"><i class="fas fa-hashtag" style="font-size:11px;"></i> ${esc(a.trackingCode)}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <span class="alert-cat ${a.category}"><i class="fas ${catIcon(a.category)}"></i> ${esc(catLabel(a.category))}</span>
+            <span class="badge ${prioClass}">${prio}</span>
+            <span class="badge b-${statusClass}">${esc((a.status||'').replace('_',' '))}</span>
+          </div>
+        </div>
+        <div style="text-align:right;font-size:11px;color:var(--muted);">
+          <div style="font-weight:800;color:var(--danger);font-size:13px;">ETA ${a.eta||'—'} min</div>
+          <div>Received ${mins} min ago</div>
+        </div>
+      </div>
+      <div class="alert-grid">
+        <div class="cell"><div class="k">Patient</div><div class="v">${esc(a.patientName)}</div></div>
+        <div class="cell"><div class="k">Age / Gender</div><div class="v">${esc(a.age)} · ${esc(a.gender)}</div></div>
+        <div class="cell"><div class="k">Contact</div><div class="v">${esc(a.contact)}</div></div>
+        <div class="cell"><div class="k">Location</div><div class="v">${esc(a.location)}</div></div>
+        ${a.assignedBed?`<div class="cell"><div class="k">Bed</div><div class="v" style="color:var(--success);">${esc(a.assignedBed)}</div></div>`:''}
+        ${a.assignedDoctor?`<div class="cell"><div class="k">Doctor</div><div class="v" style="color:var(--success);">${esc((getDoctor(a.assignedDoctor)||{}).name||a.assignedDoctor)}</div></div>`:''}
+        ${a.assignedAmbulance?`<div class="cell"><div class="k">Ambulance</div><div class="v" style="color:var(--success);">${esc((getAmbulance(a.assignedAmbulance)||{}).number||a.assignedAmbulance)}</div></div>`:''}
+      </div>
+      ${a.notes?`<div style="background:var(--bg);padding:10px 12px;border-radius:10px;font-size:12.5px;color:var(--muted);margin-bottom:10px;"><strong style="color:var(--primary);">Notes:</strong> ${esc(a.notes)}</div>`:''}
+      <div class="alert-actions">
+        ${a.status==='PENDING'?`<button class="btn btn-sm" onclick="App.acknowledgeAlert('${a.id}')"><i class="fas fa-check"></i> Acknowledge</button>`:''}
+        ${['PENDING','ACKNOWLEDGED'].includes(a.status)?`<button class="btn btn-primary btn-sm" onclick="App.openAllocationModal('${a.id}')"><i class="fas fa-clipboard-list"></i> Assign Resources</button>`:''}
+        <button class="btn btn-sm" onclick="App.viewAlertDetails('${a.id}')"><i class="fas fa-eye"></i> Details</button>
+        ${a.status==='ADMITTED'?`<button class="btn btn-success btn-sm" onclick="App.markCompleted('${a.id}')"><i class="fas fa-check-double"></i> Completed</button>`:''}
+        ${!['ADMITTED','COMPLETED','CANCELLED'].includes(a.status)?`<button class="btn btn-danger btn-sm" onclick="App.cancelAlert('${a.id}')"><i class="fas fa-times"></i> Cancel</button>`:''}
+      </div>
+    </div>`;
+  },
+
+  acknowledgeAlert(id){
+    const a = getAlert(id); if(!a) return;
+    DB.update('alerts', id, {status:'ACKNOWLEDGED', acknowledgedAt:new Date().toISOString()});
+    DB.logActivity(`Alert ${a.trackingCode} acknowledged`);
+    sSuccess();
+    Toast.show(`Alert ${a.trackingCode} acknowledged — patient side notified`, 'success');
+    this.render('feed'); this.renderCircleMenu();
+  },
+
+  cancelAlert(id){
+    const a = getAlert(id); if(!a) return;
+    if(!confirm(`Cancel alert ${a.trackingCode}?`)) return;
+    DB.update('alerts', id, {status:'CANCELLED'});
+    DB.logActivity(`Alert ${a.trackingCode} cancelled`);
+    Toast.show('Alert cancelled', 'warn');
+    this.render('feed'); this.renderCircleMenu();
+  },
+
+  markCompleted(id){
+    const a = getAlert(id); if(!a) return;
+    DB.update('alerts', id, {status:'COMPLETED', completedAt:new Date().toISOString()});
+    if(a.assignedBed){ const bed = getBed(a.assignedBed); if(bed) DB.update('beds', bed.id, {status:'Available', patientId:null}); }
+    if(a.assignedDoctor){ const doc = getDoctor(a.assignedDoctor); if(doc) DB.update('doctors', doc.id, {patients: Math.max(0,(doc.patients||1)-1), status:'Available'}); }
+    if(a.assignedAmbulance){ const amb = getAmbulance(a.assignedAmbulance); if(amb) DB.update('ambulances', amb.id, {status:'Available', assignedTo:null, location:'Hospital Base'}); }
+    DB.logActivity(`Patient ${a.trackingCode} treatment completed, resources freed`);
+    Toast.show(`Patient ${a.trackingCode} marked completed — resources freed`, 'success');
+    this.render('feed');
+  },
+
+  viewAlertDetails(id){
+    const a = getAlert(id); if(!a) return;
+    const body = `
+      <div style="background:linear-gradient(135deg,var(--card),var(--surface));border:1px solid var(--secondary);border-radius:12px;padding:16px;margin-bottom:14px;">
+        <div style="font-family:'Courier New',monospace;font-size:18px;font-weight:900;color:var(--primary);letter-spacing:1px;">${esc(a.trackingCode)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+          <span class="alert-cat ${a.category}"><i class="fas ${catIcon(a.category)}"></i> ${esc(catLabel(a.category))}</span>
+          <span class="badge ${a.priority==='CRITICAL'?'b-red':a.priority==='HIGH'?'b-amber':'b-blue'}">${esc(a.priority||'MEDIUM')}</span>
+          <span class="badge b-blue">${esc((a.status||'').replace('_',' '))}</span>
+        </div>
+      </div>
+      <div class="profile-grid">
+        ${[
+          ['Patient Name', a.patientName],['Age', a.age],['Gender', a.gender],
+          ['Contact', a.contact],['Location', a.location],['ETA', (a.eta||'—')+' minutes'],
+          ['Category', catLabel(a.category)],['Priority', a.priority||'MEDIUM'],
+          ['Received', fDT(a.createdAt)],
+          ['Assigned Bed', a.assignedBed||'—'],
+          ['Assigned Doctor', a.assignedDoctor ? ((getDoctor(a.assignedDoctor)||{}).name||a.assignedDoctor) : '—'],
+          ['Assigned Ambulance', a.assignedAmbulance ? ((getAmbulance(a.assignedAmbulance)||{}).number||a.assignedAmbulance) : '—']
+        ].map(([k,v])=>`<div class="pf"><div class="pf-lbl">${esc(k)}</div><div class="pf-val">${esc(v)}</div></div>`).join('')}
+      </div>
+      ${a.notes?`<div style="margin-top:14px;background:var(--bg);border:1px solid var(--soft);border-radius:12px;padding:14px;"><div class="pf-lbl">Notes / Symptoms</div><div style="margin-top:6px;font-size:13px;">${esc(a.notes)}</div></div>`:''}`;
+    const footer = document.createElement('div');
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Close'; cBtn.onclick=()=>Modal.close();
+    footer.appendChild(cBtn);
+    if(['PENDING','ACKNOWLEDGED'].includes(a.status)){
+      const aBtn = document.createElement('button'); aBtn.className='btn btn-primary'; aBtn.innerHTML='<i class="fas fa-clipboard-list"></i> Assign Resources';
+      aBtn.onclick = () => { Modal.close(); setTimeout(()=>this.openAllocationModal(a.id), 200); };
+      footer.appendChild(aBtn);
+    }
+    Modal.open({title:'Alert Details', body, footer, wide:true});
+  },
+
+  /* ============ ALLOCATION ============ */
+  viewAllocation(c){
+    const pendingAlerts = DB.data.alerts.filter(a=>['PENDING','ACKNOWLEDGED'].includes(a.status));
+    c.innerHTML = `
+      <div class="stats">
+        <div class="stat red"><div class="stat-icon"><i class="fas fa-bell"></i></div><div><div class="stat-val">${pendingAlerts.length}</div><div class="stat-lbl">Awaiting Allocation</div></div></div>
+        <div class="stat green"><div class="stat-icon"><i class="fas fa-bed"></i></div><div><div class="stat-val">${DB.data.beds.filter(b=>b.status==='Available').length}</div><div class="stat-lbl">Free Beds</div></div></div>
+        <div class="stat"><div class="stat-icon"><i class="fas fa-user-md"></i></div><div><div class="stat-val">${DB.data.doctors.filter(d=>['Available','On Duty'].includes(d.status)).length}</div><div class="stat-lbl">Doctors Available</div></div></div>
+        <div class="stat amber"><div class="stat-icon"><i class="fas fa-ambulance"></i></div><div><div class="stat-val">${DB.data.ambulances.filter(a=>a.status==='Available').length}</div><div class="stat-lbl">Ambulances Free</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3><i class="fas fa-clipboard-list"></i> Start New Allocation</h3>
+          <button class="btn btn-primary" onclick="App.openAllocationModal()"><i class="fas fa-plus"></i> Allocate Resources</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3><i class="fas fa-list"></i> Alerts Awaiting Allocation</h3></div>
+        ${pendingAlerts.length ? `<div class="tw"><table>
+          <thead><tr><th>Code</th><th>Patient</th><th>Category</th><th>Priority</th><th>ETA</th><th>Received</th><th class="actions">Action</th></tr></thead>
+          <tbody>${pendingAlerts.map(a=>`
+            <tr>
+              <td class="mono" style="color:var(--danger);">${esc(a.trackingCode)}</td>
+              <td><strong>${esc(a.patientName)}</strong><div style="font-size:11.5px;color:var(--muted);">${esc(a.age)} · ${esc(a.gender)}</div></td>
+              <td><span class="alert-cat ${a.category}"><i class="fas ${catIcon(a.category)}"></i> ${esc(catLabel(a.category))}</span></td>
+              <td><span class="badge ${a.priority==='CRITICAL'?'b-red':a.priority==='HIGH'?'b-amber':'b-blue'}">${esc(a.priority||'MEDIUM')}</span></td>
+              <td><strong>${esc(a.eta||'—')} min</strong></td>
+              <td>${minutesFrom(a.createdAt)} min ago</td>
+              <td class="actions"><button class="btn btn-primary btn-sm" onclick="App.openAllocationModal('${a.id}')"><i class="fas fa-clipboard-list"></i> Allocate</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table></div>` : '<div class="empty"><i class="fas fa-check-circle"></i><div class="t">All alerts processed</div><div class="d">No pending alerts awaiting allocation</div></div>'}
+      </div>`;
+  },
+
+  openAllocationModal(preAlertId){
+    const pending = DB.data.alerts.filter(a=>['PENDING','ACKNOWLEDGED'].includes(a.status));
+    if(!pending.length){ Toast.show('No pending alerts to allocate', 'warn'); return; }
+    const alertOpts = pending.map(a=>`<option value="${a.id}" ${a.id===preAlertId?'selected':''}>${esc(a.trackingCode)} — ${esc(a.patientName)} (${esc(catLabel(a.category))})</option>`).join('');
+
+    const body = `
+      <div class="fg">
+        <label>Select Patient (From Live Alerts) <span class="req">*</span></label>
+        <select id="alAlert">${alertOpts}</select>
+      </div>
+      <div id="alPatientInfo" style="background:var(--bg);border:1px solid var(--soft);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div style="font-weight:800;color:var(--primary);font-size:13.5px;"><i class="fas fa-bed"></i> 1. Assign Bed <span style="font-size:11px;color:var(--success);font-weight:700;margin-left:6px;"><i class="fas fa-circle" style="font-size:7px;"></i> Only available beds shown</span></div>
+          <select id="alWardFilter" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;">
+            <option value="">All Wards</option>
+            ${WARDS.map(w=>`<option>${w}</option>`).join('')}
+          </select>
+        </div>
+        <div class="bed-grid" id="alBedGrid"></div>
+        <div id="alBedSelected" style="margin-top:10px;font-size:12.5px;color:var(--muted);">No bed selected</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div style="font-weight:800;color:var(--primary);font-size:13.5px;"><i class="fas fa-user-md"></i> 2. Assign Doctor (On Duty)</div>
+          <select id="alSpecFilter" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;">
+            <option value="">All Specialties</option>
+            ${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}
+          </select>
+        </div>
+        <div class="doc-card" id="alDocGrid"></div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;">
+        <div style="font-weight:800;color:var(--primary);font-size:13.5px;margin-bottom:12px;"><i class="fas fa-ambulance"></i> 3. Dispatch Ambulance (Optional)</div>
+        <div class="tw" style="max-height:200px;"><table>
+          <thead><tr><th></th><th>Unit</th><th>Driver</th><th>Status</th><th>Location</th></tr></thead>
+          <tbody id="alAmbBody"></tbody>
+        </table></div>
+      </div>
+
+      <div class="fg" style="margin-top:14px;">
+        <label>Additional Notes</label>
+        <textarea id="alNotes" placeholder="Any special instructions for the dispatch team…"></textarea>
+      </div>
+
+      <div id="alErr" style="display:none;padding:10px 14px;background:rgba(179,38,30,.08);color:var(--danger);border-radius:10px;font-size:12.5px;font-weight:700;border-left:3px solid var(--danger);"></div>`;
+
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Cancel'; cBtn.onclick=()=>Modal.close();
+    const sBtn = document.createElement('button'); sBtn.className='btn btn-success'; sBtn.innerHTML='<i class="fas fa-paper-plane"></i> Dispatch &amp; Sync';
+    sBtn.onclick = () => this.submitAllocation();
+    footer.appendChild(cBtn); footer.appendChild(sBtn);
+
+    Modal.open({title:'Resource Allocation & Dispatch', body, footer, xwide:true});
+    this._alloc = { bed:null, doctor:null, ambulance:null };
+
+    const renderPatientInfo = () => {
+      const a = getAlert($('#alAlert').value); if(!a){ $('#alPatientInfo').innerHTML=''; return; }
+      $('#alPatientInfo').innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;font-size:12.5px;">
+          <div><div style="font-size:10.5px;color:var(--secondary);font-weight:800;text-transform:uppercase;">Tracking</div><div style="font-family:'Courier New',monospace;font-weight:800;color:var(--danger);">${esc(a.trackingCode)}</div></div>
+          <div><div style="font-size:10.5px;color:var(--secondary);font-weight:800;text-transform:uppercase;">Patient</div><div style="font-weight:700;">${esc(a.patientName)}</div></div>
+          <div><div style="font-size:10.5px;color:var(--secondary);font-weight:800;text-transform:uppercase;">Age/Gender</div><div style="font-weight:700;">${esc(a.age)} · ${esc(a.gender)}</div></div>
+          <div><div style="font-size:10.5px;color:var(--secondary);font-weight:800;text-transform:uppercase;">Category</div><div style="font-weight:700;">${esc(catLabel(a.category))}</div></div>
+          <div><div style="font-size:10.5px;color:var(--secondary);font-weight:800;text-transform:uppercase;">Contact</div><div style="font-weight:700;">${esc(a.contact)}</div></div>
+          <div><div style="font-size:10.5px;color:var(--secondary);font-weight:800;text-transform:uppercase;">ETA</div><div style="font-weight:700;">${esc(a.eta||'—')} min</div></div>
+        </div>`;
+    };
+
+    const renderBeds = () => {
+      const ward = $('#alWardFilter').value;
+      const beds = DB.data.beds.filter(b => b.status==='Available' && (!ward || b.ward===ward));
+      const grid = $('#alBedGrid');
+      if(!beds.length){
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:12.5px;padding:20px;background:var(--bg);border-radius:10px;"><i class="fas fa-bed" style="font-size:22px;opacity:.4;display:block;margin-bottom:8px;color:var(--secondary);"></i>No available beds${ward?' in '+esc(ward)+' ward':''}</div>`;
+        return;
+      }
+      grid.innerHTML = beds.map(b=>{
+        const sel = this._alloc.bed===b.id ? ' sel' : '';
+        return `<div class="bed-tile free${sel}" data-bed="${b.id}" onclick="App.selectBed('${b.id}')">
+          <div class="bn">${esc(b.id)}</div>
+          <div class="wt">${esc(b.ward)}</div>
+        </div>`;
+      }).join('');
+    };
+
+    const renderDocs = () => {
+      const spec = $('#alSpecFilter').value;
+      const docs = DB.data.doctors.filter(d=>{
+        if(spec && d.specialty!==spec) return false;
+        return ['On Duty','Available','Busy'].includes(d.status);
+      });
+      const grid = $('#alDocGrid');
+      if(!docs.length){ grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:12.5px;padding:14px;">No doctors on duty in this specialty</div>`; return; }
+      grid.innerHTML = docs.map(d=>{
+        const sel = this._alloc.doctor===d.id;
+        const stCls = d.status==='Available'?'b-green':d.status==='On Duty'?'b-blue':d.status==='Busy'?'b-amber':'b-gray';
+        const initials = (d.name||'?').split(' ').slice(-2).map(x=>x[0]).join('').toUpperCase();
+        return `<div class="doc ${sel?'hdr':''}" style="${sel?'border-color:var(--primary);box-shadow:0 0 0 3px rgba(92,112,87,.18);background:var(--card);':''}cursor:pointer;" onclick="App.selectDoctor('${d.id}')">
+          <div class="doc-avatar">${esc(initials)}</div>
+          <div class="doc-name">${esc(d.name)}</div>
+          <div class="doc-spec">${esc(d.specialty)}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+            <span class="badge ${stCls}">${esc(d.status)}</span>
+            <span style="font-size:11px;color:var(--muted);font-weight:700;">${esc(d.shift)} shift</span>
+          </div>
+          <div class="doc-meta"><span>Active patients</span><strong>${d.patients||0}</strong></div>
+        </div>`;
+      }).join('');
+    };
+
+    const renderAmbs = () => {
+      const rows = DB.data.ambulances;
+      const tb = $('#alAmbBody');
+      tb.innerHTML = rows.map(am=>{
+        const dis = am.status!=='Available';
+        const sel = this._alloc.ambulance===am.id;
+        const stCls = am.status==='Available'?'b-green':am.status==='On-duty'?'b-amber':'b-red';
+        return `<tr style="${dis?'opacity:.55;':''}cursor:${dis?'not-allowed':'pointer'};" ${!dis?`onclick="App.selectAmbulance('${am.id}')"`:''}>
+          <td><input type="radio" name="alAmb" ${sel?'checked':''} ${dis?'disabled':''}></td>
+          <td><strong>${esc(am.number)}</strong></td>
+          <td>${esc(am.driver)}</td>
+          <td><span class="badge ${stCls}">${esc(am.status)}</span></td>
+          <td style="font-size:12px;">${esc(am.location)}</td>
+        </tr>`;
+      }).join('');
+    };
+
+    setTimeout(()=>{
+      renderPatientInfo(); renderBeds(); renderDocs(); renderAmbs();
+      $('#alAlert').onchange = renderPatientInfo;
+      $('#alWardFilter').onchange = renderBeds;
+      $('#alSpecFilter').onchange = renderDocs;
+    }, 50);
+  },
+
+  selectBed(id){
+    this._alloc.bed = id;
+    $$('#alBedGrid .bed-tile').forEach(el=>{ el.classList.toggle('sel', el.dataset.bed===id); });
+    const b = getBed(id);
+    if(b){
+      const el = $('#alBedSelected');
+      el.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success);"></i> Selected: <strong>${esc(b.id)}</strong> — ${esc(b.ward)} (${esc(b.type)})`;
+      el.style.color = 'var(--success)'; el.style.fontWeight = '700';
+      sSuccess();
+    }
+  },
+
+  selectDoctor(id){ this._alloc.doctor = id; this.openAllocationModal_refreshDocs(); sSuccess(); },
+  openAllocationModal_refreshDocs(){
+    const grid = $('#alDocGrid'); if(!grid) return;
+    const spec = $('#alSpecFilter').value;
+    const docs = DB.data.doctors.filter(d=>{
+      if(spec && d.specialty!==spec) return false;
+      return ['On Duty','Available','Busy'].includes(d.status);
+    });
+    grid.innerHTML = docs.map(d=>{
+      const sel = this._alloc.doctor===d.id;
+      const stCls = d.status==='Available'?'b-green':d.status==='On Duty'?'b-blue':d.status==='Busy'?'b-amber':'b-gray';
+      const initials = (d.name||'?').split(' ').slice(-2).map(x=>x[0]).join('').toUpperCase();
+      return `<div class="doc ${sel?'hdr':''}" style="${sel?'border-color:var(--primary);box-shadow:0 0 0 3px rgba(92,112,87,.18);background:var(--card);':''}cursor:pointer;" onclick="App.selectDoctor('${d.id}')">
+        <div class="doc-avatar">${esc(initials)}</div>
+        <div class="doc-name">${esc(d.name)}</div>
+        <div class="doc-spec">${esc(d.specialty)}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <span class="badge ${stCls}">${esc(d.status)}</span>
+          <span style="font-size:11px;color:var(--muted);font-weight:700;">${esc(d.shift)} shift</span>
+        </div>
+        <div class="doc-meta"><span>Active patients</span><strong>${d.patients||0}</strong></div>
+      </div>`;
+    }).join('');
+  },
+
+  selectAmbulance(id){
+    this._alloc.ambulance = id;
+    const tb = $('#alAmbBody');
+    tb.innerHTML = DB.data.ambulances.map(am=>{
+      const dis = am.status!=='Available';
+      const sel = this._alloc.ambulance===am.id;
+      const stCls = am.status==='Available'?'b-green':am.status==='On-duty'?'b-amber':'b-red';
+      return `<tr style="${dis?'opacity:.55;':''}cursor:${dis?'not-allowed':'pointer'};" ${!dis?`onclick="App.selectAmbulance('${am.id}')"`:''}>
+        <td><input type="radio" name="alAmb" ${sel?'checked':''} ${dis?'disabled':''}></td>
+        <td><strong>${esc(am.number)}</strong></td>
+        <td>${esc(am.driver)}</td>
+        <td><span class="badge ${stCls}">${esc(am.status)}</span></td>
+        <td style="font-size:12px;">${esc(am.location)}</td>
+      </tr>`;
+    }).join('');
+    sSuccess();
+  },
+
+  submitAllocation(){
+    const alertId = $('#alAlert').value;
+    const err = $('#alErr');
+    const a = getAlert(alertId);
+    if(!a){ err.style.display='block'; err.textContent='Select a patient'; return; }
+    if(!this._alloc.bed){ err.style.display='block'; err.textContent='Please select an available bed'; return; }
+    if(!this._alloc.doctor){ err.style.display='block'; err.textContent='Please select an on-duty doctor'; return; }
+    err.style.display='none';
+
+    const bed = getBed(this._alloc.bed);
+    const doc = getDoctor(this._alloc.doctor);
+    const amb = this._alloc.ambulance ? getAmbulance(this._alloc.ambulance) : null;
+
+    DB.update('beds', bed.id, {status:'Occupied', patientId: a.id});
+    DB.update('doctors', doc.id, {patients: (doc.patients||0)+1, status:'Busy'});
+    if(amb) DB.update('ambulances', amb.id, {status:'On-duty', assignedTo:a.id, location:'En route to '+a.location});
+    DB.update('alerts', a.id, {
+      status:'ASSIGNED',
+      assignedBed: bed.id, assignedDoctor: doc.id,
+      assignedAmbulance: amb ? amb.id : null,
+      assignedAt: new Date().toISOString(),
+      notes: (a.notes||'') + ($('#alNotes').value ? ' | ' + $('#alNotes').value : '')
+    });
+
+    DB.logActivity(`Allocation: ${a.trackingCode} → Bed ${bed.id}, ${doc.name}${amb?', '+amb.number:''}`);
+    DB.pushNotification('Resources Assigned', `${a.trackingCode} → ${bed.id} · ${doc.name}${amb?' · '+amb.number:''}`, 'success');
+    sSuccess();
+    Modal.close();
+    Toast.show(`Resources assigned — patient ${a.trackingCode} notified`, 'success', 4000);
+    this._alloc = {bed:null, doctor:null, ambulance:null};
+    this.renderCircleMenu();
+    if(this.currentView) this.render(this.currentView);
+  },
+
+  /* ============ BEDS ============ */
+  viewBeds(c){
+    const grouped = {};
+    DB.data.beds.forEach(b=>{ if(!grouped[b.ward]) grouped[b.ward]=[]; grouped[b.ward].push(b); });
+    const totalAvail = DB.data.beds.filter(b=>b.status==='Available').length;
+    const totalOcc = DB.data.beds.filter(b=>b.status==='Occupied').length;
+
+    c.innerHTML = `
+      <div class="stats">
+        <div class="stat green"><div class="stat-icon"><i class="fas fa-bed"></i></div><div><div class="stat-val">${totalAvail}</div><div class="stat-lbl">Available Beds</div></div></div>
+        <div class="stat red"><div class="stat-icon"><i class="fas fa-procedures"></i></div><div><div class="stat-val">${totalOcc}</div><div class="stat-lbl">Occupied Beds</div></div></div>
+        <div class="stat amber"><div class="stat-icon"><i class="fas fa-clock"></i></div><div><div class="stat-val">${DB.data.beds.filter(b=>b.status==='Reserved').length}</div><div class="stat-lbl">Reserved</div></div></div>
+        <div class="stat"><div class="stat-icon"><i class="fas fa-tools"></i></div><div><div class="stat-val">${DB.data.beds.filter(b=>b.status==='Maintenance').length}</div><div class="stat-lbl">Maintenance</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3><i class="fas fa-bed"></i> Bed Availability by Ward</h3>
+          <button class="btn btn-sm" onclick="App.render('beds')"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+        <div class="legend">
+          <span class="lg-free">Available</span><span class="lg-occ">Occupied</span>
+          <span class="lg-res">Reserved</span><span class="lg-maint">Maintenance</span>
+        </div>
+        ${Object.keys(grouped).length ? Object.entries(grouped).map(([ward,beds])=>{
+          const av = beds.filter(b=>b.status==='Available').length;
+          return `<div style="margin-bottom:18px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:8px 12px;background:var(--bg);border-radius:10px;border-left:4px solid var(--primary);">
+              <div style="font-weight:800;font-size:13.5px;color:var(--primary);"><i class="fas fa-notes-medical"></i> ${esc(ward)} Ward</div>
+              <div style="font-size:12px;color:var(--muted);font-weight:700;">${av} available / ${beds.length} total</div>
+            </div>
+            <div class="bed-grid">
+              ${beds.map(b=>{
+                const cls = b.status==='Available'?'free':b.status==='Occupied'?'occ':b.status==='Reserved'?'res':'maint';
+                return `<div class="bed-tile ${cls}" onclick="App.viewBedDetails('${b.id}')">
+                  <div class="bn">${esc(b.number)}</div>
+                  <div class="wt">${esc(b.type)}</div>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>`;
+        }).join('') : '<div class="empty"><i class="fas fa-bed"></i><div class="t">No beds configured</div><div class="d">Bed records will appear here once created in Firebase</div></div>'}
+      </div>`;
+  },
+
+  viewBedDetails(id){
+    const b = getBed(id); if(!b) return;
+    let patientName = '—';
+    if(b.patientId){
+      const a = getAlert(b.patientId);
+      if(a) patientName = a.patientName;
+      else { const p = DB.data.patients.find(x=>x.bedId===b.id); if(p) patientName = p.patientName; }
+    }
+    const body = `
+      <div class="profile-grid">
+        <div class="pf"><div class="pf-lbl">Bed ID</div><div class="pf-val">${esc(b.id)}</div></div>
+        <div class="pf"><div class="pf-lbl">Ward</div><div class="pf-val">${esc(b.ward)}</div></div>
+        <div class="pf"><div class="pf-lbl">Type</div><div class="pf-val">${esc(b.type)}</div></div>
+        <div class="pf"><div class="pf-lbl">Status</div><div class="pf-val"><span class="badge b-${b.status==='Available'?'green':b.status==='Occupied'?'red':b.status==='Reserved'?'amber':'gray'}">${esc(b.status)}</span></div></div>
+        <div class="pf"><div class="pf-lbl">Patient</div><div class="pf-val">${esc(patientName)}</div></div>
+      </div>`;
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Close'; cBtn.onclick=()=>Modal.close();
+    if(b.status==='Occupied'){
+      const fBtn = document.createElement('button'); fBtn.className='btn btn-success'; fBtn.innerHTML='<i class="fas fa-broom"></i> Free Bed';
+      fBtn.onclick = () => {
+        if(!confirm('Mark this bed as Available?')) return;
+        DB.update('beds', b.id, {status:'Available', patientId:null});
+        Modal.close(); Toast.show('Bed freed', 'success'); this.render('beds');
+      };
+      footer.appendChild(cBtn); footer.appendChild(fBtn);
+    } else if(b.status==='Available'){
+      const rBtn = document.createElement('button'); rBtn.className='btn btn-warn'; rBtn.innerHTML='<i class="fas fa-clock"></i> Reserve';
+      rBtn.onclick = () => { DB.update('beds', b.id, {status:'Reserved'}); Modal.close(); Toast.show('Bed reserved','success'); this.render('beds'); };
+      const mBtn = document.createElement('button'); mBtn.className='btn'; mBtn.innerHTML='<i class="fas fa-tools"></i> Maintenance';
+      mBtn.onclick = () => { DB.update('beds', b.id, {status:'Maintenance'}); Modal.close(); Toast.show('Bed sent to maintenance','warn'); this.render('beds'); };
+      footer.appendChild(cBtn); footer.appendChild(rBtn); footer.appendChild(mBtn);
+    } else {
+      const avBtn = document.createElement('button'); avBtn.className='btn btn-success'; avBtn.innerHTML='<i class="fas fa-check"></i> Mark Available';
+      avBtn.onclick = () => { DB.update('beds', b.id, {status:'Available'}); Modal.close(); Toast.show('Bed is now available','success'); this.render('beds'); };
+      footer.appendChild(cBtn); footer.appendChild(avBtn);
+    }
+    Modal.open({title:'Bed Details', body, footer});
+  },
+
+  /* ============ DOCTORS ============ */
+  viewDoctors(c){
+    const onDuty = DB.data.doctors.filter(d=>d.status==='On Duty').length;
+    const available = DB.data.doctors.filter(d=>d.status==='Available').length;
+    const busy = DB.data.doctors.filter(d=>d.status==='Busy').length;
+    const offDuty = DB.data.doctors.filter(d=>d.status==='Off Duty').length;
+
+    c.innerHTML = `
+      <div class="stats">
+        <div class="stat green"><div class="stat-icon"><i class="fas fa-user-md"></i></div><div><div class="stat-val">${available}</div><div class="stat-lbl">Available</div></div></div>
+        <div class="stat"><div class="stat-icon"><i class="fas fa-stethoscope"></i></div><div><div class="stat-val">${onDuty}</div><div class="stat-lbl">On Duty</div></div></div>
+        <div class="stat amber"><div class="stat-icon"><i class="fas fa-user-clock"></i></div><div><div class="stat-val">${busy}</div><div class="stat-lbl">Busy</div></div></div>
+        <div class="stat"><div class="stat-icon"><i class="fas fa-user-slash"></i></div><div><div class="stat-val">${offDuty}</div><div class="stat-lbl">Off Duty</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3><i class="fas fa-user-md"></i> Doctor Roster (Shift-wise)</h3>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="docSearch" placeholder="Search doctor / specialty…" oninput="App.renderDoctorsGrid()">
+          <select id="docSpecFilter" onchange="App.renderDoctorsGrid()">
+            <option value="">All Specialties</option>
+            ${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}
+          </select>
+          <select id="docShiftFilter" onchange="App.renderDoctorsGrid()">
+            <option value="">All Shifts</option>
+            ${SHIFTS.map(s=>`<option>${s}</option>`).join('')}
+          </select>
+        </div>
+        <div class="doc-card" id="docGrid"></div>
+      </div>`;
+    this.renderDoctorsGrid();
+  },
+
+  renderDoctorsGrid(){
+    const grid = $('#docGrid'); if(!grid) return;
+    const q = ($('#docSearch')?.value||'').toLowerCase();
+    const spec = $('#docSpecFilter')?.value||'';
+    const shift = $('#docShiftFilter')?.value||'';
+    const docs = DB.data.doctors.filter(d=>{
+      if(q && !(d.name||'').toLowerCase().includes(q) && !(d.specialty||'').toLowerCase().includes(q)) return false;
+      if(spec && d.specialty!==spec) return false;
+      if(shift && d.shift!==shift) return false;
+      return true;
+    });
+    if(!docs.length){ grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px;">No doctors found</div>`; return; }
+    grid.innerHTML = docs.map(d=>{
+      const stCls = d.status==='Available'?'b-green':d.status==='On Duty'?'b-blue':d.status==='Busy'?'b-amber':'b-gray';
+      const initials = (d.name||'?').split(' ').slice(-2).map(x=>x[0]).join('').toUpperCase();
+      return `<div class="doc">
+        <div class="doc-avatar">${esc(initials)}</div>
+        <div class="doc-name">${esc(d.name)}</div>
+        <div class="doc-spec">${esc(d.specialty)}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <span class="badge ${stCls}">${esc(d.status)}</span>
+          <span style="font-size:11px;color:var(--muted);font-weight:700;">${esc(d.shift)} shift</span>
+        </div>
+        <div class="doc-meta"><span>Contact</span><strong>${esc(d.contact||'—')}</strong></div>
+        <div class="doc-meta"><span>Active patients</span><strong>${d.patients||0}</strong></div>
+        <div style="display:flex;gap:6px;margin-top:10px;">
+          <button class="btn btn-sm btn-primary" style="flex:1;justify-content:center;" onclick="App.openDoctorStatusModal('${d.id}')"><i class="fas fa-edit"></i> Update Status</button>
+        </div>
+      </div>`;
+    }).join('');
+  },
+
+  openDoctorStatusModal(id){
+    const d = getDoctor(id); if(!d) return;
+    const html = `
+      <div class="fg"><label>Doctor Name</label><input type="text" value="${esc(d.name)} — ${esc(d.specialty)}" readonly></div>
+      <div class="form-grid">
+        <div class="fg"><label>Status <span class="req">*</span></label><select id="dcStatus">
+          ${['Available','On Duty','Busy','Off Duty'].map(s=>`<option ${s===d.status?'selected':''}>${s}</option>`).join('')}
+        </select></div>
+        <div class="fg"><label>Shift <span class="req">*</span></label><select id="dcShift">
+          ${SHIFTS.map(s=>`<option ${s===d.shift?'selected':''}>${s}</option>`).join('')}
+        </select></div>
+      </div>`;
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Cancel'; cBtn.onclick=()=>Modal.close();
+    const sBtn = document.createElement('button'); sBtn.className='btn btn-primary'; sBtn.innerHTML='<i class="fas fa-save"></i> Update';
+    sBtn.onclick = () => {
+      DB.update('doctors', id, {status: $('#dcStatus').value, shift: $('#dcShift').value});
+      Modal.close(); Toast.show('Doctor status updated', 'success'); this.render('doctors');
+    };
+    footer.appendChild(cBtn); footer.appendChild(sBtn);
+    Modal.open({title:'Update Doctor Status', body:html, footer});
+  },
+
+  /* ============ AMBULANCES ============ */
+  viewAmbulances(c){
+    const available = DB.data.ambulances.filter(a=>a.status==='Available').length;
+    const onDuty = DB.data.ambulances.filter(a=>a.status==='On-duty').length;
+    const maint = DB.data.ambulances.filter(a=>a.status==='Maintenance').length;
+
+    c.innerHTML = `
+      <div class="stats">
+        <div class="stat green"><div class="stat-icon"><i class="fas fa-ambulance"></i></div><div><div class="stat-val">${available}</div><div class="stat-lbl">Available</div></div></div>
+        <div class="stat amber"><div class="stat-icon"><i class="fas fa-route"></i></div><div><div class="stat-val">${onDuty}</div><div class="stat-lbl">On Duty</div></div></div>
+        <div class="stat red"><div class="stat-icon"><i class="fas fa-tools"></i></div><div><div class="stat-val">${maint}</div><div class="stat-lbl">Maintenance</div></div></div>
+        <div class="stat"><div class="stat-icon"><i class="fas fa-truck-medical"></i></div><div><div class="stat-val">${DB.data.ambulances.length}</div><div class="stat-lbl">Total Fleet</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3><i class="fas fa-ambulance"></i> Ambulance Fleet Status</h3>
+        </div>
+        ${DB.data.ambulances.length ? `<div class="tw"><table>
+          <thead><tr><th>Unit</th><th>Driver</th><th>Contact</th><th>Status</th><th>Location</th><th>Assigned To</th><th class="actions">Actions</th></tr></thead>
+          <tbody>${DB.data.ambulances.map(am=>{
+            const stCls = am.status==='Available'?'b-green':am.status==='On-duty'?'b-amber':'b-red';
+            const assignedAlert = am.assignedTo ? getAlert(am.assignedTo) : null;
+            return `<tr>
+              <td><strong>${esc(am.number)}</strong></td>
+              <td>${esc(am.driver)}</td>
+              <td>${esc(am.contact||'—')}</td>
+              <td><span class="badge ${stCls}">${esc(am.status)}</span></td>
+              <td style="font-size:12px;">${esc(am.location||'—')}</td>
+              <td style="font-size:12px;">${assignedAlert ? `<span class="mono" style="color:var(--danger);">${esc(assignedAlert.trackingCode)}</span> — ${esc(assignedAlert.patientName)}` : '—'}</td>
+              <td class="actions">
+                <button class="btn btn-sm" onclick="App.openAmbulanceStatusModal('${am.id}')"><i class="fas fa-edit"></i></button>
+              </td>
+            </tr>`;
+          }).join('')}
+          </tbody>
+        </table></div>` : '<div class="empty"><i class="fas fa-ambulance"></i><div class="t">No ambulances in fleet</div><div class="d">Ambulance records will appear here once created in Firebase</div></div>'}
+      </div>`;
+  },
+
+  openAmbulanceStatusModal(id){
+    const am = getAmbulance(id); if(!am) return;
+    const html = `
+      <div class="fg"><label>Unit</label><input type="text" value="${esc(am.number)} — ${esc(am.driver)}" readonly></div>
+      <div class="form-grid">
+        <div class="fg"><label>Status <span class="req">*</span></label><select id="amStatus">
+          ${['Available','On-duty','Maintenance'].map(s=>`<option ${s===am.status?'selected':''}>${s}</option>`).join('')}
+        </select></div>
+        <div class="fg"><label>Location</label><input type="text" id="amLoc" value="${esc(am.location||'')}"></div>
+      </div>`;
+    const footer = document.createElement('div'); footer.style.display='flex'; footer.style.gap='10px';
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Cancel'; cBtn.onclick=()=>Modal.close();
+    const sBtn = document.createElement('button'); sBtn.className='btn btn-primary'; sBtn.innerHTML='<i class="fas fa-save"></i> Update';
+    sBtn.onclick = () => {
+      const st = $('#amStatus').value;
+      DB.update('ambulances', id, {status: st, location: $('#amLoc').value.trim(), assignedTo: st==='Available'?null:am.assignedTo});
+      Modal.close(); Toast.show('Ambulance updated', 'success'); this.render('ambulances');
+    };
+    footer.appendChild(cBtn); footer.appendChild(sBtn);
+    Modal.open({title:'Update Ambulance', body:html, footer});
+  },
+
+  /* ============ PATIENTS ============ */
+  viewPatients(c){
+    const all = [
+      ...DB.data.patients.map(p=>({ ...p, source:'HISTORY' })),
+      ...DB.data.alerts.filter(a=>['ADMITTED','COMPLETED','ASSIGNED','EN_ROUTE','ARRIVED'].includes(a.status)).map(a=>({
+        id:a.id, trackingCode:a.trackingCode, patientName:a.patientName,
+        age:a.age, gender:a.gender, category:a.category, contact:a.contact,
+        ward: a.assignedBed ? ((getBed(a.assignedBed)||{}).ward||'—') : '—',
+        bedId: a.assignedBed, doctorId: a.assignedDoctor,
+        status: a.status, admittedAt: a.assignedAt || a.createdAt,
+        notes: a.notes, source:'LIVE'
+      }))
+    ];
+    c.innerHTML = `
+      <div class="stats">
+        <div class="stat"><div class="stat-icon"><i class="fas fa-hospital-user"></i></div><div><div class="stat-val">${all.length}</div><div class="stat-lbl">Total Patient Records</div></div></div>
+        <div class="stat green"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div><div class="stat-val">${all.filter(p=>p.status==='ADMITTED'||p.status==='COMPLETED').length}</div><div class="stat-lbl">Admitted / Completed</div></div></div>
+        <div class="stat amber"><div class="stat-icon"><i class="fas fa-route"></i></div><div><div class="stat-val">${all.filter(p=>['ASSIGNED','EN_ROUTE','ARRIVED'].includes(p.status)).length}</div><div class="stat-lbl">In Transit / Incoming</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3><i class="fas fa-list"></i> Patient Records</h3>
+          <div class="filter-bar" style="margin:0;flex:1;max-width:500px;">
+            <input type="text" id="patSearch" placeholder="Search by name, tracking code…" oninput="App.renderPatientsTable()">
+          </div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr><th>Tracking</th><th>Patient</th><th>Age/Gender</th><th>Category</th><th>Ward / Bed</th><th>Doctor</th><th>Status</th><th class="actions">Actions</th></tr></thead>
+          <tbody id="patTableBody"></tbody>
+        </table></div>
+      </div>`;
+    this._patientsCache = all;
+    this.renderPatientsTable();
+  },
+
+  renderPatientsTable(){
+    const tb = $('#patTableBody'); if(!tb) return;
+    const q = ($('#patSearch')?.value||'').toLowerCase();
+    const rows = (this._patientsCache||[]).filter(p=>{
+      if(!q) return true;
+      return (p.patientName||'').toLowerCase().includes(q) || (p.trackingCode||'').toLowerCase().includes(q);
+    });
+    if(!rows.length){ tb.innerHTML = `<tr><td colspan="8"><div class="empty"><i class="fas fa-hospital-user"></i><div class="t">No patients found</div></div></td></tr>`; return; }
+    tb.innerHTML = rows.map(p=>{
+      const statusCls = p.status==='ADMITTED'?'green':p.status==='COMPLETED'?'green':p.status==='CANCELLED'?'gray':['ASSIGNED','EN_ROUTE','ARRIVED'].includes(p.status)?'amber':'blue';
+      const bedLabel = p.bedId ? `${esc(p.ward||'—')} · ${esc(p.bedId)}` : '—';
+      const docName = p.doctorId ? ((getDoctor(p.doctorId)||{}).name || '—') : '—';
+      return `<tr>
+        <td class="mono" style="color:var(--danger);">${esc(p.trackingCode)}</td>
+        <td><strong>${esc(p.patientName)}</strong></td>
+        <td>${esc(p.age)} · ${esc(p.gender||'—')}</td>
+        <td><span class="alert-cat ${p.category}"><i class="fas ${catIcon(p.category)}"></i> ${esc(catLabel(p.category))}</span></td>
+        <td style="font-size:12px;">${bedLabel}</td>
+        <td style="font-size:12px;">${esc(docName)}</td>
+        <td><span class="badge b-${statusCls}">${esc((p.status||'').replace('_',' '))}</span></td>
+        <td class="actions">
+          <button class="btn btn-sm" onclick="App.viewPatientRecord('${p.id}','${p.source}')"><i class="fas fa-eye"></i> View</button>
+        </td>
+      </tr>`;
+    }).join('');
+  },
+
+  viewPatientRecord(id, source){
+    let p;
+    if(source==='LIVE'){
+      const a = getAlert(id); if(!a) return;
+      p = { trackingCode:a.trackingCode, patientName:a.patientName, age:a.age, gender:a.gender,
+        category:a.category, contact:a.contact, location:a.location, eta:a.eta,
+        status:a.status, priority:a.priority, notes:a.notes,
+        bedId:a.assignedBed, doctorId:a.assignedDoctor, ambulanceId:a.assignedAmbulance,
+        admittedAt:a.assignedAt || a.createdAt };
+    } else {
+      p = DB.data.patients.find(x=>x.id===id); if(!p) return;
+      p = {...p, location:'—', eta:'—', priority:'—'};
+    }
+    const body = `
+      <div style="background:linear-gradient(135deg,var(--card),var(--surface));border:1px solid var(--secondary);border-radius:12px;padding:16px;margin-bottom:14px;">
+        <div style="font-family:'Courier New',monospace;font-size:18px;font-weight:900;color:var(--primary);letter-spacing:1px;">${esc(p.trackingCode)}</div>
+        <div style="font-size:16px;font-weight:800;margin-top:6px;">${esc(p.patientName)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+          <span class="alert-cat ${p.category}"><i class="fas ${catIcon(p.category)}"></i> ${esc(catLabel(p.category))}</span>
+          <span class="badge b-blue">${esc((p.status||'').replace('_',' '))}</span>
+        </div>
+      </div>
+      <div class="profile-grid">
+        ${[
+          ['Age', p.age], ['Gender', p.gender||'—'], ['Contact', p.contact],
+          ['Location', p.location], ['ETA', (p.eta||'—')+' min'],
+          ['Admitted/Received', fDT(p.admittedAt)],
+          ['Assigned Bed', p.bedId ? ((getBed(p.bedId)||{}).id + ' · ' + ((getBed(p.bedId)||{}).ward||'')) : '—'],
+          ['Assigned Doctor', p.doctorId ? ((getDoctor(p.doctorId)||{}).name||'—') : '—'],
+          ['Assigned Ambulance', p.ambulanceId ? ((getAmbulance(p.ambulanceId)||{}).number||'—') : '—']
+        ].map(([k,v])=>`<div class="pf"><div class="pf-lbl">${esc(k)}</div><div class="pf-val">${esc(v)}</div></div>`).join('')}
+      </div>
+      ${p.notes?`<div style="margin-top:14px;background:var(--bg);border:1px solid var(--soft);border-radius:12px;padding:14px;"><div class="pf-lbl">Notes</div><div style="margin-top:6px;font-size:13px;">${esc(p.notes)}</div></div>`:''}`;
+    const footer = document.createElement('div');
+    const cBtn = document.createElement('button'); cBtn.className='btn'; cBtn.textContent='Close'; cBtn.onclick=()=>Modal.close();
+    footer.appendChild(cBtn);
+    Modal.open({title:'Patient Record', body, footer, wide:true});
+  }
+};
+
+/* ============================================================
+   DB STATUS UI
+   ============================================================ */
+function updateDbStatusUI(){
+  const el = $('#dbStatus');
+  const txt = $('#dbStatusText');
+  if(!el || !txt) return;
+  if(DataStore.mode === 'firebase'){
+    el.className = 'db-status firebase';
+    txt.textContent = 'Firebase Connected';
+  } else {
+    el.className = 'db-status local';
+    txt.textContent = 'Offline (Local)';
+  }
+}
+
+/* ============================================================
+   AUTH CONFIGURATION — preserved exactly
+   ============================================================ */
+const AUTH_CONFIG = {
+  admin: {
+    label:      'Hospital Administration',
+    password:   'admin123'
+  },
+  reception: {
+    label:      'Reception Staff',
+    password:   'recep123'
+  },
+  sessionKey:    'chk_auth_session',
+  sessionHours:  8,
+  maxAttempts:   5,
+  lockoutMinutes: 2
+};
+
+/* ============================================================
+   DASHBOARD LAUNCH (SPA switch)
+   ============================================================ */
+async function launchDashboard(){
+  const authScreen = document.getElementById('authScreen');
+  const dashScreen = document.getElementById('dashboardScreen');
+  if(authScreen) authScreen.style.display = 'none';
+  if(dashScreen) dashScreen.style.display = 'flex';
+  /* Init dashboard only once */
+  if(!launchDashboard._done){
+    launchDashboard._done = true;
+    await App.init();
+  }
+}
+
+/* ============================================================
+   AUTH UI WIRING
+   ============================================================ */
+function initAuthUI(){
+  const $ = s => document.querySelector(s);
+  const roleEl   = $('#role');
+  const pwEl     = $('#password');
+  const formEl   = $('#authForm');
+  const btnEl    = $('#submitBtn');
+  const errBox   = $('#errMsg');
+  const errText  = $('#errText');
+  const cardEl   = $('#glassCard');
+  const toggleEl = $('#togglePw');
+  const capsEl   = $('#capsWarn');
+  const overlay  = $('#successOverlay');
+  const overlayMsg = $('#successMsg');
+
+  const yearEl = document.getElementById('year');
+  if(yearEl) yearEl.textContent = new Date().getFullYear();
+
+  /* ---------- Password toggle ---------- */
+  toggleEl.addEventListener('click', () => {
+    const isPw = pwEl.type === 'password';
+    pwEl.type = isPw ? 'text' : 'password';
+    toggleEl.innerHTML = isPw ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+    pwEl.focus();
+  });
+
+  /* ---------- Caps Lock ---------- */
+  pwEl.addEventListener('keyup', e => {
+    if(e.getModifierState){
+      const on = e.getModifierState('CapsLock');
+      capsEl.classList.toggle('show', on);
+    }
+  });
+  pwEl.addEventListener('blur', () => capsEl.classList.remove('show'));
+
+  /* ---------- Error helpers ---------- */
+  function showError(msg){
+    errText.textContent = msg;
+    errBox.classList.add('show');
+    cardEl.classList.add('shake');
+    setTimeout(() => cardEl.classList.remove('shake'), 520);
+  }
+  function hideError(){ errBox.classList.remove('show'); }
+
+  /* ---------- Attempt lockout ---------- */
+  const LOCK_KEY = 'chk_auth_lock';
+  function getLock(){
+    try{ return JSON.parse(localStorage.getItem(LOCK_KEY) || '{"count":0,"until":0}'); }
+    catch(e){ return {count:0, until:0}; }
+  }
+  function setLock(o){ localStorage.setItem(LOCK_KEY, JSON.stringify(o)); }
+  function checkLock(){
+    const l = getLock();
+    if(l.until && Date.now() < l.until){
+      const secs = Math.ceil((l.until - Date.now())/1000);
+      showError(`Too many failed attempts. Try again in ${secs}s.`);
+      return true;
+    }
+    if(l.until && Date.now() >= l.until){ setLock({count:0, until:0}); }
+    return false;
+  }
+
+  /* ---------- Submit ---------- */
+  formEl.addEventListener('submit', e => {
+    e.preventDefault();
+    hideError();
+
+    if(checkLock()) return;
+
+    const role = roleEl.value;
+    const pw   = pwEl.value;
+
+    if(!role){ showError('Please select your role first.'); return; }
+    if(!pw){ showError('Please enter your password.'); return; }
+
+    btnEl.classList.add('loading');
+    btnEl.disabled = true;
+    const btnTextEl = btnEl.querySelector('.btn-text');
+    btnTextEl.textContent = 'Verifying…';
+
+    setTimeout(() => {
+      const cfg = AUTH_CONFIG[role];
+
+      if(!cfg || pw !== cfg.password){
+        const l = getLock();
+        l.count = (l.count || 0) + 1;
+        if(l.count >= AUTH_CONFIG.maxAttempts){
+          l.until = Date.now() + AUTH_CONFIG.lockoutMinutes*60*1000;
+          l.count = 0;
+          setLock(l);
+          showError(`Too many failed attempts. Locked for ${AUTH_CONFIG.lockoutMinutes} minutes.`);
+        } else {
+          const left = AUTH_CONFIG.maxAttempts - l.count;
+          setLock(l);
+          showError(`Invalid password. ${left} attempt${left>1?'s':''} remaining.`);
+        }
+        btnEl.classList.remove('loading');
+        btnEl.disabled = false;
+        btnTextEl.textContent = 'Access Portal';
+        pwEl.value = '';
+        pwEl.focus();
+        return;
+      }
+
+      /* ---------- ADMIN branch (kept intact, wired later) ---------- */
+      if(role === 'admin'){
+        setLock({count:0, until:0});
+        overlayMsg.textContent = 'Admin panel will be connected soon';
+        overlay.classList.add('show');
+        setTimeout(() => {
+          overlay.classList.remove('show');
+          btnEl.classList.remove('loading');
+          btnEl.disabled = false;
+          btnTextEl.textContent = 'Access Portal';
+          pwEl.value = '';
+        }, 2400);
+        return;
+      }
+
+      /* ---------- RECEPTION success → launch dashboard ---------- */
+      setLock({count:0, until:0});
+
+      const session = {
+        role,
+        label: cfg.label,
+        loginAt: Date.now(),
+        expiresAt: Date.now() + AUTH_CONFIG.sessionHours*60*60*1000
+      };
+      try{ sessionStorage.setItem(AUTH_CONFIG.sessionKey, JSON.stringify(session)); }catch(e){}
+
+      overlayMsg.textContent = `Access Granted · ${cfg.label}`;
+      overlay.classList.add('show');
+
+      setTimeout(() => {
+        overlay.classList.remove('show');
+        launchDashboard();
+      }, 1100);
+    }, 650);
+  });
+
+  /* ---------- UX focus ---------- */
+  roleEl.addEventListener('change', () => { hideError(); if(roleEl.value) pwEl.focus(); });
+  pwEl.addEventListener('input', hideError);
+
+  /* Light devtools block (kept from original) */
+  document.addEventListener('keydown', e => {
+    if(e.key === 'F12' ||
+       (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
+       (e.ctrlKey && e.key.toLowerCase() === 'u')){
+      e.preventDefault();
+    }
+  });
+
+  document.querySelectorAll('img').forEach(img => img.setAttribute('draggable','false'));
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  initAuthUI();
+
+  /* Session check — if a valid reception session exists, skip auth */
+  try{
+    const s = JSON.parse(sessionStorage.getItem(AUTH_CONFIG.sessionKey) || 'null');
+    if(s && s.expiresAt && Date.now() < s.expiresAt && s.role === 'reception'){
+      launchDashboard();
+    } else if(s && s.role === 'admin'){
+      /* no admin panel on this host yet — clear and show auth */
+      sessionStorage.removeItem(AUTH_CONFIG.sessionKey);
+    }
+  }catch(e){}
+});
+
+/* Globals exposed for inline handlers */
+window.App = App;
+window.DB = DB;
+window.Toast = Toast;
+window.Modal = Modal;
+window.DataStore = DataStore;
+window.playClick = playClick;
+</script>
+</body>
+</html>
